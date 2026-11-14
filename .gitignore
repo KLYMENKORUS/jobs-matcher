@@ -1,0 +1,50 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+__init__.cpython-*.pyc
+__init__.cpython-*.pyo
+
+# Environments
+*.env
+.venv
+env/
+venv/
+
+# Log files
+*.log
+
+# rotated logs
+*.log-*
+*.log-*.gz
+
+# IDE files
+.idea/
+.vscode/
+
+# Mac files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon*
+
+# local
+local/
+*.json
+*.xlsx
+*.xls
+*.pdf
+*.doc
+*.docs
+
+# chrome
+chrome/
+
+# uv
+.python-version
+*.lock
+
+# tool caches
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/

@@ -1,0 +1,26 @@
+name: jobs-matcher
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: jobs-matcher-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRESQL_USER:?set POSTGRESQL_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD:?set POSTGRESQL_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRESQL_DB:?set POSTGRESQL_DB in .env}
+      TZ: Europe/Kiev
+    ports:
+      # bound to localhost only; the app connects via POSTGRESQL_HOST=localhost
+      - "127.0.0.1:${POSTGRESQL_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  postgres-data:
