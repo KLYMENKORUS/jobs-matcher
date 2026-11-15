@@ -10,9 +10,10 @@ from playwright.async_api import Browser, BrowserContext, Page
 
 from app.shared.utils.logger import Logger
 from app.shared.utils.logger.decorators import delimit_wrapper
+
+from ...base.scraper.browser import AsyncBaseContextClient
 from .manager import AsyncBrowserManager
 from .options import BrowserContextOptions
-from ...base.scraper.browser import AsyncBaseContextClient
 
 
 class AsyncBrowserClient(AsyncBaseContextClient):

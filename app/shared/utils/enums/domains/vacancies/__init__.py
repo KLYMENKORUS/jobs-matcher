@@ -1,9 +1,16 @@
 __all__ = (
+    "VacancySource",
     "InteractionStatus",
-    "VacancySource"
 )
 
 from enum import StrEnum
+
+
+class VacancySource(StrEnum):
+    DOU = "dou"
+    DJINNI = "djinni"
+    THE_JOB = "thejob"
+    JOBICO = "jobico"
 
 
 class InteractionStatus(StrEnum):
@@ -12,10 +19,3 @@ class InteractionStatus(StrEnum):
     APPLIED = "applied"
     SKIPPED = "skipped"
     IGNORED = "ignored"
-
-
-class VacancySource(StrEnum):
-    DOU = "dou"
-    DJINNI = "djinni"
-    THE_JOB = "the-job"
-    JOBICO = "jobico"

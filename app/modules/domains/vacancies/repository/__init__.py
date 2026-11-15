@@ -10,8 +10,8 @@ from sqlalchemy import exists, select
 from sqlalchemy.dialects.postgresql import insert
 
 from app.infrastructure.database.crud import BaseCRUD
-from app.modules.domains.vacancies.enums import InteractionStatus
 from app.modules.domains.vacancies.models import UserVacancyInteraction, Vacancy
+from app.shared.utils.enums.domains.vacancies import InteractionStatus
 
 
 class VacancyRepository(BaseCRUD[Vacancy]):

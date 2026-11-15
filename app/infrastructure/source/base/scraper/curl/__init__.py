@@ -13,11 +13,15 @@ from ..http import BaseScraperRequestClient
 
 class AsyncBaseCurlScraperClient(BaseScraperRequestClient, abc.ABC):
 
-    def __init__(self, *, logger: Logger, proxies: dict[str, t.Any]) -> None:
+    def __init__(
+            self, *,
+            logger: Logger,
+            proxies: dict[str, t.Any] | None = None
+    ) -> None:
         super().__init__(logger=logger)
 
         # ------------------------------------------------------------------------ #
-        self.proxies: dict[str, t.Any] = proxies
+        self.proxies: dict[str, t.Any] | None = proxies
         # ------------------------------------------------------------------------ #
         self._session: AsyncSession[Response] | None = None
         # ------------------------------------------------------------------------ #

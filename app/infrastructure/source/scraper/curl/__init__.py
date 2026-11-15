@@ -26,6 +26,7 @@ class AsyncCurlScraperClient(AsyncBaseCurlScraperClient):
     ) -> None:
         session: AsyncSession[Response] | None = self._session
         self._session = None
+
         if session is not None:
             await session.__aexit__(exc_type, exc_val, exc_tb)
 

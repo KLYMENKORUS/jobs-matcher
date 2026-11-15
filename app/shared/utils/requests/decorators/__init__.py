@@ -1,15 +1,19 @@
 __all__ = (
     "retry_on_connection_error",
+    "source_api_wrapper_error",
 )
 
 import asyncio
+import functools
 import random
+import traceback
 import typing as t
 
 from aiohttp import ClientConnectionError, ClientResponseError
 from curl_cffi.requests.exceptions import HTTPError
 from playwright.async_api import Error as PlaywrightError
 from playwright.async_api import TimeoutError as PlaywrightTimeoutError
+from pydantic import ValidationError
 from tenacity import (
     AsyncRetrying,
     RetryCallState,
@@ -18,7 +22,8 @@ from tenacity import (
 )
 
 from app.shared.utils.descriptors import BaseAttributeAccessor
-from app.shared.utils.logger import Logger
+from app.shared.utils.exceptions.source import SourceApiDataError
+from app.shared.utils.logger import Logger, LogLabels
 from app.shared.utils.logger import logger as default_logger
 
 from ..config import HTTPRetryConfig
@@ -68,7 +73,6 @@ class _RetryOnConnectionError[T](BaseAttributeAccessor[T]):
         return decorator
 
     def __get__(self, instance: t.Any, owner: type[t.Any] | None = None) -> t.Self:
-        # same as BaseAttributeAccessor.__get__, but carries the config over
         if instance is None:
             return self
         bound: t.Self = self.__class__(
@@ -135,4 +139,45 @@ class _RetryOnConnectionError[T](BaseAttributeAccessor[T]):
         return result
 
 
+class _SourceApiWrapperValidation:
+    """
+    Turn a pydantic `ValidationError` from a source API response parser into
+    `SourceApiDataError`, logging the details.
+    """
+
+    def __init__(self, *, source: str, api: str, path: str) -> None:
+        # ------------------------------------------------------------------------ #
+        self.source: str = source
+        # ------------------------------------------------------------------------ #
+        self.api: str = api
+        # ------------------------------------------------------------------------ #
+        self.path: str = path
+        # ------------------------------------------------------------------------ #
+        self._log_labels: LogLabels = LogLabels.SOURCE_API
+        # ------------------------------------------------------------------------ #
+
+    def __call__[**P, R](
+            self, function: t.Callable[P, t.Coroutine[t.Any, t.Any, R]]
+    ) -> t.Callable[P, t.Coroutine[t.Any, t.Any, R]]:
+
+        @functools.wraps(function)
+        async def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+            if "data" in kwargs and not isinstance(kwargs["data"], dict):
+                kwargs["data"] = {"data": kwargs["data"]}
+
+            try:
+                return await function(*args, **kwargs)
+            except ValidationError as exp:
+                default_logger.error(
+                    f"[{self._log_labels}] {self.source} api response data validation error "
+                    f"({self.api} / {self.path}): {traceback.format_exc()}"
+                )
+                raise SourceApiDataError(
+                    source=self.source, api=self.api, path=self.path
+                ) from exp
+
+        return wrapper
+
+
 retry_on_connection_error = _RetryOnConnectionError
+source_api_wrapper_error = _SourceApiWrapperValidation

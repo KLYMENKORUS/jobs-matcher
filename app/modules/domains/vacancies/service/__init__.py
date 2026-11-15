@@ -4,7 +4,6 @@ import typing as t
 from collections.abc import Sequence
 
 from app.infrastructure.database.service import UnitOfWork
-from app.modules.domains.vacancies.enums import InteractionStatus
 from app.modules.domains.vacancies.models import UserVacancyInteraction
 from app.modules.domains.vacancies.schemas import (
     InteractionSchema,
@@ -13,6 +12,7 @@ from app.modules.domains.vacancies.schemas import (
     VacancyMatchSchema,
     VacancySchema,
 )
+from app.shared.utils.enums.domains.vacancies import InteractionStatus
 from app.shared.utils.exceptions.domains.vacancies import InteractionNotFoundError
 from app.shared.utils.logger.decorators import delimit_wrapper
 

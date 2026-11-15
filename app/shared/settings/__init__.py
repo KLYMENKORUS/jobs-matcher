@@ -59,6 +59,12 @@ class Settings(BaseSettings):
     TELEGRAM_BOT_TOKEN: str
     ################################################################################
 
+    # [matching]
+    ################################################################################
+    # a vacancy is sent to the user once its AI match score (0..100) reaches this
+    DEFAULT_MIN_SCORE: float = Field(default=70.0, ge=0, le=100)
+    ################################################################################
+
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
     def assemble_db_url(cls, value: str | None, info: ValidationInfo) -> str:

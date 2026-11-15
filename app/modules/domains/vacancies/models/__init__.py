@@ -19,7 +19,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.infrastructure.database.base import Base
-from app.modules.domains.vacancies.enums import InteractionStatus
+from app.shared.utils.enums.domains.vacancies import InteractionStatus
 
 if t.TYPE_CHECKING:
     from app.modules.domains.users.models import User

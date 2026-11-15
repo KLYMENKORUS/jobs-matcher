@@ -10,7 +10,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.modules.domains.vacancies.enums import InteractionStatus, VacancySource
+from app.shared.utils.enums.domains.vacancies import InteractionStatus, VacancySource
 
 
 # [vacancy]

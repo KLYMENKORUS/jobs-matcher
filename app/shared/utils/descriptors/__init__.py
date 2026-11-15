@@ -60,15 +60,32 @@ class RequiredField:
         instance.__dict__[self._private_name] = value
 
 
-class RequiredTypedField(RequiredField):
+class RequiredTypedField[T](RequiredField):
+    """
+    `RequiredField` that also checks the type on assignment.
 
-    def __init__(self, *, expected_type: type[t.Any]) -> None:
+    Declare it unannotated — `search = RequiredTypedField(expected_type=Search)` —
+    and type checkers read `obj.search` as `Search`.
+    """
+
+    # `| Callable[..., T]` lets abstract classes through (mypy `type-abstract`)
+    # while still inferring `T` from the argument
+    def __init__(self, *, expected_type: type[T] | t.Callable[..., T]) -> None:
         super().__init__()
         # ------------------------------------------------------------------------ #
-        self._expected_type: type[t.Any] = expected_type
+        self._expected_type: type[t.Any] = t.cast(type[t.Any], expected_type)
         # ------------------------------------------------------------------------ #
 
-    def __set__(self, instance: t.Any, value: t.Any) -> None:
+    @t.overload
+    def __get__(self, instance: None, owner: type[t.Any] | None = None) -> t.Self: ...
+
+    @t.overload
+    def __get__(self, instance: object, owner: type[t.Any] | None = None) -> T: ...
+
+    def __get__(self, instance: t.Any, owner: type[t.Any] | None = None) -> t.Any:
+        return super().__get__(instance, owner)
+
+    def __set__(self, instance: t.Any, value: T) -> None:
         if not isinstance(value, self._expected_type):
             raise TypeError(
                 f"Expected value of type '{self._expected_type.__name__}' for field "

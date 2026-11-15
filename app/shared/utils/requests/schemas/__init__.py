@@ -21,7 +21,6 @@ class ScraperRequestParams(BaseModel):
     class ResponseFormat(StrEnum):
         JSON = "json"
         HTML = "html"
-        REDIRECT = "redirect"
     ################################################################################
 
     url: str
