@@ -1,17 +1,8 @@
 __all__ = (
-    "InteractionSchema",
-    "InteractionWithVacancySchema",
     "VacancyCreateSchema",
-    "VacancyMatchSchema",
     "VacancySchema",
     "VacancyService"
 )
 
-from .schemas import (
-    InteractionSchema,
-    InteractionWithVacancySchema,
-    VacancyCreateSchema,
-    VacancyMatchSchema,
-    VacancySchema,
-)
+from .schemas import VacancyCreateSchema, VacancySchema
 from .service import VacancyService

@@ -73,3 +73,10 @@ class LogLabels(StrEnum):
     USER_SETTINGS = "user-settings"
     VACANCIES = "vacancies"
     # ------------------------------------------------------------------------ #
+
+    # [tasks]
+    # ------------------------------------------------------------------------ #
+    PARSING_TASK = "parsing-task"
+    ANALYSIS_TASK = "analysis-task"
+    SENDING_TASK = "sending-task"
+    # ------------------------------------------------------------------------ #

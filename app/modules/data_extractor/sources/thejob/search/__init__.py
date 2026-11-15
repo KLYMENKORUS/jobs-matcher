@@ -5,7 +5,10 @@ import typing as t
 
 from app.infrastructure.source.parser.api.schemas.thejob.search import JobSearch
 from app.modules.data_extractor.decorators import data_extractor_validation
-from app.modules.data_extractor.schemas.search import VacanciesSearchResults
+from app.modules.data_extractor.schemas.search import (
+    VacanciesSearchResults,
+    VacancySearchItem,
+)
 from app.shared.utils.logger.decorators import delimit_wrapper
 
 from ....adapters.thejob import TheJobDataExtractorAdapter
@@ -46,7 +49,15 @@ class TheJobVacanciesSearchExtractor(TheJobDataExtractorAdapter):
                     return search_results
 
                 if job.is_active and not job.archived:
-                    search_results.results.append(vacancy)
+                    # the search response already has the full vacancy
+                    search_results.results.append(
+                        VacancySearchItem(
+                            url=vacancy.url,
+                            source=vacancy.source,
+                            posted_at=vacancy.posted_at,
+                            main=vacancy,
+                        )
+                    )
         # ------------------------------------------------------------------------ #
 
         self.logger.info(

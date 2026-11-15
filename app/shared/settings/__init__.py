@@ -65,6 +65,23 @@ class Settings(BaseSettings):
     DEFAULT_MIN_SCORE: float = Field(default=70.0, ge=0, le=100)
     ################################################################################
 
+    # [background tasks]
+    ################################################################################
+    PARSING_LOOKBACK_DAYS: int = Field(default=30, ge=1)
+    ANALYSIS_BATCH_SIZE: int = Field(default=20, ge=1)
+
+    PARSING_INTERVAL_MINUTES: int = Field(default=60, ge=1)
+    ANALYSIS_INTERVAL_MINUTES: int = Field(default=15, ge=1)
+    SENDING_INTERVAL_MINUTES: int = Field(default=5, ge=1)
+    ################################################################################
+
+    @property
+    def BROKER_URL(self) -> str:  # noqa: N802 - settings are upper-case
+        return (
+            f"amqp://{self.RABBITMQ_USERNAME}:{self.RABBITMQ_PASSWORD}"
+            f"@{self.RABBITMQ_HOST}:{self.RABBITMQ_PORT}//"
+        )
+
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
     def assemble_db_url(cls, value: str | None, info: ValidationInfo) -> str:

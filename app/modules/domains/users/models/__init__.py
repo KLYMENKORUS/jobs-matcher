@@ -9,8 +9,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.infrastructure.database.base import Base
 
 if t.TYPE_CHECKING:
+    from app.modules.domains.interactions.models import UserVacancyInteraction
     from app.modules.domains.user_settings.models import UserSettings
-    from app.modules.domains.vacancies.models import UserVacancyInteraction
 
 
 class User(Base):

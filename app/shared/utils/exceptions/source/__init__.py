@@ -2,6 +2,7 @@ __all__ = (
     "NotAVacancyUrlError",
     "SourceApiDataError",
     "SourceDataExtractionError",
+    "SourceDataExtractorNotFoundError",
 )
 
 import abc
@@ -76,3 +77,19 @@ class NotAVacancyUrlError(_BaseSourceErrorException):
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({self.url!r}, {self.source!r})"
+
+
+class SourceDataExtractorNotFoundError(_BaseSourceErrorException):
+    """No data extractor is registered for the source."""
+
+    def __init__(self, *, source: str) -> None:
+        # ------------------------------------------------------------------------ #
+        self.source: str = source
+        # ------------------------------------------------------------------------ #
+        super().__init__()
+
+    def __str__(self) -> str:
+        return f"[{self.log_labels}] data extractor not found for source: {self.source}"
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}({self.source!r})"

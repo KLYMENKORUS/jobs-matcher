@@ -12,6 +12,8 @@ from app.infrastructure.database.base import Base
 # ------------------------------------------------------------------------------ #
 # every model module must be imported here so its tables land in Base.metadata,
 # otherwise autogenerate will think the table was removed and emit a DROP
+from app.modules.domains.interactions import models as _interactions_models  # noqa: F401
+from app.modules.domains.tasks.execution import models as _task_runs_models  # noqa: F401
 from app.modules.domains.user_settings import models as _user_settings_models  # noqa: F401
 from app.modules.domains.users import models as _users_models  # noqa: F401
 from app.modules.domains.vacancies import models as _vacancies_models  # noqa: F401

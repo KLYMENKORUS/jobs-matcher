@@ -9,7 +9,7 @@ import datetime as dt
 from pydantic import BaseModel, Field
 
 from app.modules.domains.vacancies.schemas import VacancyCreateSchema
-from app.shared.utils.enums.domains.vacancies import VacancySource
+from app.shared.utils.enums.domains.vacancies import VacancySource, VacancyStatus
 
 from .._base import HttpUrlStr
 
@@ -55,4 +55,6 @@ class VacancyMain(BaseModel):
             description=self.description,
             url=self.url,
             source=self.source,
+            posted_at=self.posted_at,
+            status=VacancyStatus.COLLECTED,
         )

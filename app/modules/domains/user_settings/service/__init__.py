@@ -36,6 +36,10 @@ class UserSettingsService:
                 uow, telegram_id=telegram_id
             )
             return UserSettingsSchema.model_validate(settings)
+
+    async def get_unique_active_keywords(self) -> list[str]:
+        async with self._uow_factory() as uow:
+            return await uow.user_settings.get_unique_active_keywords()
     ################################################################################
 
     # [write]

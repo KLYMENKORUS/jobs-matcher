@@ -1,6 +1,6 @@
 __all__ = (
     "VacancySource",
-    "InteractionStatus",
+    "VacancyStatus",
 )
 
 from enum import StrEnum
@@ -13,9 +13,10 @@ class VacancySource(StrEnum):
     JOBICO = "jobico"
 
 
-class InteractionStatus(StrEnum):
-    PENDING = "pending"
-    SENT = "sent"
-    APPLIED = "applied"
-    SKIPPED = "skipped"
-    IGNORED = "ignored"
+class VacancyStatus(StrEnum):
+    # url (and maybe posted_at) is known from the search, details not collected yet
+    NEW = "new"
+    # all fields are collected, the vacancy can be linked to users
+    COLLECTED = "collected"
+    # collecting the details failed, the vacancy is skipped
+    FAILED = "failed"
