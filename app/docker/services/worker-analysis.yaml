@@ -1,0 +1,16 @@
+services:
+  worker-analysis:
+    extends:
+      file: _app.yaml
+      service: app
+    container_name: jobs-matcher-worker-analysis
+    command: >-
+      celery -A app.modules.workers.jobs.tasks worker
+      -Q analysis -c 1 -n analysis@%h -E --loglevel=INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully

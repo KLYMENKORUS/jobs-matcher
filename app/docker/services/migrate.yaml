@@ -1,0 +1,12 @@
+# one-shot: applies the migrations, every app service waits for it
+services:
+  migrate:
+    extends:
+      file: _app.yaml
+      service: app
+    container_name: jobs-matcher-migrate
+    restart: "no"
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      postgres:
+        condition: service_healthy

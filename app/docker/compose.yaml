@@ -1,0 +1,37 @@
+# Full stack, one file per service in ./services (shared app settings: services/_app.yaml).
+#
+# run from the project root:
+#
+#   docker compose -f app/docker/compose.yaml up -d --build
+#   docker compose -f app/docker/compose.yaml up -d postgres rabbitmq   # infra only, app runs locally
+#   docker compose -f app/docker/compose.yaml logs -f worker-parsing
+#
+# every included file is interpolated with the project .env (env_file below),
+# so no --env-file flag is needed.
+
+name: jobs-matcher
+
+include:
+  # [infrastructure]
+  - path: services/postgres.yaml
+    env_file: ../../.env
+  - path: services/rabbitmq.yaml
+    env_file: ../../.env
+
+  # [migrations]
+  - path: services/migrate.yaml
+    env_file: ../../.env
+
+  # [celery]
+  - path: services/worker-parsing.yaml
+    env_file: ../../.env
+  - path: services/worker-analysis.yaml
+    env_file: ../../.env
+  - path: services/worker-sending.yaml
+    env_file: ../../.env
+  - path: services/beat.yaml
+    env_file: ../../.env
+
+  # [monitoring]
+  - path: services/flower.yaml
+    env_file: ../../.env

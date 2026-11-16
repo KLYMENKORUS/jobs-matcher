@@ -1,0 +1,16 @@
+services:
+  worker-sending:
+    extends:
+      file: _app.yaml
+      service: app
+    container_name: jobs-matcher-worker-sending
+    command: >-
+      celery -A app.modules.workers.jobs.tasks worker
+      -Q sending -c 1 -n sending@%h -E --loglevel=INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully

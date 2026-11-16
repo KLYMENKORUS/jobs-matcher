@@ -1,0 +1,15 @@
+services:
+  beat:
+    extends:
+      file: _app.yaml
+      service: app
+    container_name: jobs-matcher-beat
+    # schedule state in /tmp: on restart beat simply starts a fresh interval
+    command: >-
+      celery -A app.modules.workers.jobs.tasks beat
+      --schedule /tmp/celerybeat-schedule --loglevel=INFO
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully

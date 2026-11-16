@@ -1,0 +1,22 @@
+services:
+  worker-parsing:
+    extends:
+      file: _app.yaml
+      service: app
+    image: jobs-matcher:parser
+    build:
+      context: ../../..
+      dockerfile: app/docker/Dockerfile
+      target: parser  # runtime + Chromium for Playwright
+    container_name: jobs-matcher-worker-parsing
+    command: >-
+      celery -A app.modules.workers.jobs.tasks worker
+      -Q parsing -c 1 -n parsing@%h -E --loglevel=INFO
+    shm_size: 1gb  # Chromium needs more than the default 64mb
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully

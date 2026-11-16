@@ -1,0 +1,32 @@
+# Base of every app service (migrate, workers, beat) - NOT included in compose.yaml,
+# each app service pulls it in with:
+#
+#   extends:
+#     file: _app.yaml
+#     service: app
+#
+# relative paths here resolve against this directory (app/docker/services).
+
+services:
+  app:
+    image: jobs-matcher:runtime
+    build:
+      context: ../../..
+      dockerfile: app/docker/Dockerfile
+      target: runtime
+    restart: unless-stopped
+    env_file:
+      - path: ../../../.env
+        required: true
+    environment:
+      # inside the network the infra is reached by service name,
+      # .env has localhost for the app run outside docker
+      POSTGRESQL_HOST: postgres
+      POSTGRESQL_PORT: 5432
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      TZ: Europe/Kiev
+    volumes:
+      # bind mounts, shared with the app run locally (both are gitignored)
+      - ../../../media:/app/media
+      - ../../../app/shared/utils/logger/log_files:/app/app/shared/utils/logger/log_files
