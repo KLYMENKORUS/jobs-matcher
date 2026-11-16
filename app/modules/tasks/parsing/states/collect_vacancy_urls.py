@@ -86,7 +86,7 @@ class ParsingCollectVacancyUrlsState(BaseTaskState):
                 keyword=keyword,
                 vacancies=[item.to_create_schema() for item in results.results],
             )
-        except Exception:
+        except Exception:  # noqa
             self.task.logger.error(f"[{self.task.log_labels}] {traceback.format_exc()}")
             return None
 

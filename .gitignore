@@ -40,6 +40,9 @@ local/
 # chrome
 chrome/
 
+# uploaded files (CVs)
+media/
+
 # uv
 .python-version
 *.lock
@@ -48,3 +51,6 @@ chrome/
 .mypy_cache/
 .ruff_cache/
 .pytest_cache/
+
+# graphify
+graphify-out/

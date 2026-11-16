@@ -31,8 +31,6 @@ class ParsingCollectVacancyDetailsState(BaseTaskState):
             str(source) for source in self.task.extractor_factory.available_sources()
         ]
 
-        # all NEW vacancies at once: they hold only url / source / posted_at, so the
-        # list is light; after a crash the re-run selects only what is still NEW
         vacancies: list[VacancySchema] = (
             await self.task.vacancy_service.get_by_status(
                 status=VacancyStatus.NEW, sources=sources, limit=None

@@ -3,6 +3,7 @@ __all__ = (
     "Queue",
 )
 
+import typing as t
 from datetime import timedelta
 from enum import StrEnum
 
@@ -26,7 +27,7 @@ class JobsCeleryApp(BaseCeleryApp):
         celery -A app.modules.workers.jobs.tasks beat
     """
 
-    TASKS_MODULE: str = "app.modules.workers.jobs.tasks"
+    TASKS_MODULE: t.Final[str] = "app.modules.workers.jobs.tasks"
 
     def __init__(self) -> None:
         super().__init__(main="jobs_worker", broker=settings.BROKER_URL)
@@ -45,27 +46,12 @@ class JobsCeleryApp(BaseCeleryApp):
         self.conf.beat_schedule = {
             "parse-vacancies": {
                 "task": f"{self.TASKS_MODULE}.parse_vacancies",
-                "schedule": timedelta(minutes=settings.PARSING_INTERVAL_MINUTES),
+                "schedule": timedelta(hours=settings.PARSING_INTERVAL_HOURS),
                 "options": {
                     "queue": Queue.PARSING,
-                    "expires": settings.PARSING_INTERVAL_MINUTES * 60,
+                    # drop ticks that piled up while a long run was going
+                    "expires": settings.PARSING_INTERVAL_HOURS * 60 * 60,
                 },
             },
-            "analyze-vacancies": {
-                "task": f"{self.TASKS_MODULE}.analyze_vacancies",
-                "schedule": timedelta(minutes=settings.ANALYSIS_INTERVAL_MINUTES),
-                "options": {
-                    "queue": Queue.ANALYSIS,
-                    "expires": settings.ANALYSIS_INTERVAL_MINUTES * 60,
-                },
-            },
-            "send-matches": {
-                "task": f"{self.TASKS_MODULE}.send_matches",
-                "schedule": timedelta(minutes=settings.SENDING_INTERVAL_MINUTES),
-                "options": {
-                    "queue": Queue.SENDING,
-                    "expires": settings.SENDING_INTERVAL_MINUTES * 60,
-                },
-            }
         }
         # ------------------------------------------------------------------------ #

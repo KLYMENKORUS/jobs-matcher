@@ -1,6 +1,7 @@
 __all__ = ("BaseProcessingTask",)
 
 import abc
+import time
 import traceback
 import typing as t
 from enum import IntEnum
@@ -13,6 +14,7 @@ from app.shared.utils.logger import Logger, LogLabels
 from ..lock import TaskAdvisoryLock
 
 if t.TYPE_CHECKING:
+    from ..channels import BaseTelegramChannel
     from ..states import BaseTaskState
 
 
@@ -35,7 +37,13 @@ class BaseProcessingTask[S: IntEnum](abc.ABC):
     # set as a class attribute by every task, e.g. `= ParsingExecutionStatus`
     execution_status_enum: type[S]
 
-    def __init__(self, *, logger: Logger, log_labels: LogLabels, uow: UnitOfWork) -> None:
+    def __init__(
+            self, *,
+            logger: Logger,
+            log_labels: LogLabels,
+            uow: UnitOfWork,
+            celery_details: dict[str, t.Any] | None = None
+    ) -> None:
         # ------------------------------------------------------------------------ #
         self.logger: Logger = logger
         # ------------------------------------------------------------------------ #
@@ -48,6 +56,16 @@ class BaseProcessingTask[S: IntEnum](abc.ABC):
         self.task_run: TaskRunSchema | None = None
         # ------------------------------------------------------------------------ #
         self.execution_status: S | None = None
+        # ------------------------------------------------------------------------ #
+
+        # [notifications]
+        # ------------------------------------------------------------------------ #
+        # set by every task in its __init__; None sends nothing
+        self.tg_channel: BaseTelegramChannel | None = None
+        # ------------------------------------------------------------------------ #
+        self.celery_details: dict[str, t.Any] | None = celery_details
+        # ------------------------------------------------------------------------ #
+        self._started_at: float = time.monotonic()
         # ------------------------------------------------------------------------ #
 
     def get_uow(self) -> UnitOfWork:
@@ -107,12 +125,26 @@ class BaseProcessingTask[S: IntEnum](abc.ABC):
         self.task_run = await self.run_service.get_or_create(
             task_type=self.task_type, start_status=self.start_status
         )
-        self.execution_status = self.execution_status_enum(self.task_run.execution_status)
+        self.execution_status = (
+            self.execution_status_enum(self.task_run.execution_status)
+        )
         self.logger.info(
             f"[{self.log_labels}] task run (id: {self.task_run_id}), "
             f"current execution status: {self.execution_status.name}"
         )
+
         await self.run_service.start_timeframe(id=self.task_run_id)
+        self._started_at = time.monotonic()
+
+        task_run: TaskRunSchema = self.task_run
+        resumed_status: S = self.execution_status
+        await self._notify(
+            lambda channel: channel.send_start_message(
+                task_run=task_run,
+                execution_status=resumed_status,
+                celery_details=self.celery_details,
+            )
+        )
         # ------------------------------------------------------------------------ #
 
         try:
@@ -134,23 +166,64 @@ class BaseProcessingTask[S: IntEnum](abc.ABC):
             return True
         except Exception:
             self.logger.error(f"[{self.log_labels}] {traceback.format_exc()}")
-            # the shared session may hold a failed transaction, clear it before writing
+
             await self.uow.rollback()
             await self.run_service.add_exception(
                 id=self.task_run_id,
                 full_traceback=traceback.format_exc(),
                 short_traceback=traceback.format_exc(limit=1),
             )
+
+            failed_status: S | None = self.execution_status
+            exception: str = traceback.format_exc()
+
+            if failed_status is not None:
+                await self._notify(
+                    lambda channel: channel.send_failed_message(
+                        task_run=task_run,
+                        execution_status=failed_status,
+                        exception=exception,
+                        duration=self._elapsed(),
+                        celery_details=self.celery_details,
+                    )
+                )
             raise
+
         finally:
             await self.run_service.finish_timeframe(id=self.task_run_id)
 
             if self.execution_status == self.completed_status:
                 await self.on_completed()
                 await self.run_service.complete(id=self.task_run_id)
+
                 self.logger.info(
                     f"[{self.log_labels}] task run (id: {self.task_run_id}) completed"
                 )
+
+                await self._notify(
+                    lambda channel: channel.send_end_message(
+                        task_run=task_run,
+                        duration=self._elapsed(),
+                        celery_details=self.celery_details,
+                    )
+                )
+
+    def _elapsed(self) -> float:
+        return time.monotonic() - self._started_at
+
+    async def _notify(
+            self, send: t.Callable[[BaseTelegramChannel], t.Awaitable[None]]
+    ) -> None:
+        """Sends a task notification; a telegram failure never fails the task."""
+        if self.tg_channel is None or not self.tg_channel.enabled:
+            return
+
+        try:
+            await send(self.tg_channel)
+        except Exception:
+            self.logger.warning(
+                f"[{self.log_labels}] telegram notification failed\n{traceback.format_exc()}"
+            )
 
     async def switch_on_next_execution_status(self) -> None:
         if self.execution_status is None:
@@ -162,6 +235,6 @@ class BaseProcessingTask[S: IntEnum](abc.ABC):
 
     async def merge_details(self, **details: t.Any) -> None:
         await self.run_service.merge_details(id=self.task_run_id, details=details)
-        # keep the in-memory copy in sync, later states of this run read it
+
         if self.task_run is not None:
             self.task_run.details = {**self.task_run.details, **details}

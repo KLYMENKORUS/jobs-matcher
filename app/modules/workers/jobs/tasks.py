@@ -24,7 +24,9 @@ def parse_vacancies(self: BaseTaskWithRetry) -> bool:
         logger = Logger(name="parsing-worker", disable_stream_handler=False)
         logger.subinfo(f"[{self.log_labels}] start parsing ({self.get_celery_details()})")
         async with UnitOfWork() as uow:
-            return await ParsingTask(logger=logger, uow=uow).run()
+            return await ParsingTask(
+                logger=logger, uow=uow, celery_details=self.get_celery_details()
+            ).run()
     # ------------------------------------------------------------------------ #
 
     if result := run_async_task(_process_task):
@@ -44,7 +46,9 @@ def analyze_vacancies(self: BaseTaskWithRetry) -> bool:
         logger = Logger(name="analysis-worker", disable_stream_handler=False)
         logger.subinfo(f"[{self.log_labels}] start analysis ({self.get_celery_details()})")
         async with UnitOfWork() as uow:
-            return await AnalysisTask(logger=logger, uow=uow).run()
+            return await AnalysisTask(
+                logger=logger, uow=uow, celery_details=self.get_celery_details()
+            ).run()
     # ------------------------------------------------------------------------ #
 
     if result := run_async_task(_process_task):
@@ -63,7 +67,9 @@ def send_matches(self: BaseTaskWithRetry) -> bool:
         logger = Logger(name="sending-worker", disable_stream_handler=False)
         logger.subinfo(f"[{self.log_labels}] start sending ({self.get_celery_details()})")
         async with UnitOfWork() as uow:
-            return await SendingTask(logger=logger, uow=uow).run()
+            return await SendingTask(
+                logger=logger, uow=uow, celery_details=self.get_celery_details()
+            ).run()
     # ------------------------------------------------------------------------ #
 
     return run_async_task(_process_task)

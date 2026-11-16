@@ -20,7 +20,9 @@ class ParsingPrepareSearchQueriesState(BaseTaskState):
     )
     async def run(self) -> None:
         # ------------------------------------------------------------------------ #
-        keywords: list[str] = await self.task.user_settings_service.get_unique_active_keywords()
+        keywords: list[str] = (
+            await self.task.user_settings_service.get_unique_active_keywords()
+        )
         sources: list[str] = [
             str(source) for source in self.task.extractor_factory.available_sources()
         ]

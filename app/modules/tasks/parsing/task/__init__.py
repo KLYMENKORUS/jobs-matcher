@@ -12,6 +12,7 @@ from app.shared.utils.enums.tasks import ParsingExecutionStatus, TaskType
 from app.shared.utils.logger import Logger, LogLabels
 
 from ..._base.tasks import BaseProcessingTask
+from ..channel import ParsingTelegramChannel
 
 if t.TYPE_CHECKING:
     from ..._base.states import BaseTaskState
@@ -28,8 +29,16 @@ class ParsingTask(BaseProcessingTask[ParsingExecutionStatus]):
     task_type = TaskType.PARSING
     execution_status_enum = ParsingExecutionStatus
 
-    def __init__(self, *, logger: Logger, uow: UnitOfWork) -> None:
-        super().__init__(logger=logger, log_labels=LogLabels.PARSING_TASK, uow=uow)
+    def __init__(
+            self, *,
+            logger: Logger,
+            uow: UnitOfWork,
+            celery_details: dict[str, t.Any] | None = None
+    ) -> None:
+        super().__init__(
+            logger=logger, log_labels=LogLabels.PARSING_TASK,
+            uow=uow, celery_details=celery_details
+        )
 
         # [services]
         # ------------------------------------------------------------------------ #
@@ -52,6 +61,11 @@ class ParsingTask(BaseProcessingTask[ParsingExecutionStatus]):
         self.extractor_factory: DataExtractorFactory = (
             DataExtractorFactory(logger=logger)
         )
+        # ------------------------------------------------------------------------ #
+
+        # [notifications]
+        # ------------------------------------------------------------------------ #
+        self.tg_channel = ParsingTelegramChannel(logger=logger)
         # ------------------------------------------------------------------------ #
 
     def get_states(self) -> dict[ParsingExecutionStatus, BaseTaskState]:

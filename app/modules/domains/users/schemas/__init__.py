@@ -20,6 +20,6 @@ class UserSchema(BaseModel):
 
     id: int
     telegram_id: int
-    cv_text: str | None
+    cv_file: str | None
     created_at: datetime
     settings: UserSettingsSchema | None = None

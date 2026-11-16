@@ -1,6 +1,8 @@
 __all__ = ("settings",)
 
-from pydantic import Field, PostgresDsn, ValidationInfo, field_validator
+from pathlib import Path
+
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pytz import BaseTzInfo, timezone
 
@@ -45,7 +47,6 @@ class Settings(BaseSettings):
     POSTGRESQL_USER: str
     POSTGRESQL_PASSWORD: str
     POSTGRESQL_DB: str
-    DATABASE_URL: str | None = Field(default=None)
     ################################################################################
 
     # [ai-tools]
@@ -57,22 +58,29 @@ class Settings(BaseSettings):
     # [telegram]
     ################################################################################
     TELEGRAM_BOT_TOKEN: str
+
+    # task notification channels; an unset channel disables that task's messages
+    TELEGRAM_CHANNEL_PARSING: str | None = Field(default=None)
+    TELEGRAM_CHANNEL_ANALYSIS: str | None = Field(default=None)
+    TELEGRAM_CHANNEL_SENDING: str | None = Field(default=None)
     ################################################################################
 
     # [matching]
     ################################################################################
-    # a vacancy is sent to the user once its AI match score (0..100) reaches this
     DEFAULT_MIN_SCORE: float = Field(default=70.0, ge=0, le=100)
+    ################################################################################
+
+    # [storage]
+    ################################################################################
+    # uploaded CV files; the bot and the workers must share this directory
+    CV_STORAGE_DIR: Path = Field(default=Path("media/cvs"))
     ################################################################################
 
     # [background tasks]
     ################################################################################
     PARSING_LOOKBACK_DAYS: int = Field(default=30, ge=1)
     ANALYSIS_BATCH_SIZE: int = Field(default=20, ge=1)
-
-    PARSING_INTERVAL_MINUTES: int = Field(default=60, ge=1)
-    ANALYSIS_INTERVAL_MINUTES: int = Field(default=15, ge=1)
-    SENDING_INTERVAL_MINUTES: int = Field(default=5, ge=1)
+    PARSING_INTERVAL_HOURS: int = Field(default=3, ge=1)
     ################################################################################
 
     @property
@@ -82,22 +90,12 @@ class Settings(BaseSettings):
             f"@{self.RABBITMQ_HOST}:{self.RABBITMQ_PORT}//"
         )
 
-    @field_validator("DATABASE_URL", mode="before")
-    @classmethod
-    def assemble_db_url(cls, value: str | None, info: ValidationInfo) -> str:
-        if value:
-            return value
-
-        values = info.data
-        url = PostgresDsn.build(
-            scheme="postgresql+asyncpg",
-            username=str(values["POSTGRESQL_USER"]),
-            password=str(values["POSTGRESQL_PASSWORD"]),
-            host=str(values["POSTGRESQL_HOST"]),
-            port=int(values["POSTGRESQL_PORT"]),
-            path=str(values["POSTGRESQL_DB"]),
+    @property
+    def DATABASE_URL(self) -> str:  # noqa: N802 - settings are upper-case
+        return (
+            f"postgresql+asyncpg://{self.POSTGRESQL_USER}:{self.POSTGRESQL_PASSWORD}"
+            f"@{self.POSTGRESQL_HOST}:{self.POSTGRESQL_PORT}/{self.POSTGRESQL_DB}"
         )
-        return str(url)
 
 
 settings = Settings()  # type: ignore[call-arg]

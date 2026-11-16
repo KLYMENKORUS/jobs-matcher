@@ -34,7 +34,7 @@ class UserRepository(BaseCRUD[User]):
         query = (
             select(User)
             .join(User.settings)
-            .where(UserSettings.is_active.is_(True), User.cv_text.is_not(None))
+            .where(UserSettings.is_active.is_(True), User.cv_file.is_not(None))
             .order_by(User.id)
         )
         return (await self.session.scalars(query)).all()
