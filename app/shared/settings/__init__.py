@@ -79,7 +79,6 @@ class Settings(BaseSettings):
     # [background tasks]
     ################################################################################
     PARSING_LOOKBACK_DAYS: int = Field(default=30, ge=1)
-    ANALYSIS_BATCH_SIZE: int = Field(default=20, ge=1)
     PARSING_INTERVAL_HOURS: int = Field(default=3, ge=1)
     ################################################################################
 

@@ -6,10 +6,7 @@ services:
     restart: unless-stopped
     environment:
       CELERY_BROKER_URL: amqp://${RABBITMQ_USERNAME}:${RABBITMQ_PASSWORD}@rabbitmq:5672//
-      # queue lengths in the ui come from the rabbitmq management api
-      FLOWER_BROKER_API: http://${RABBITMQ_USERNAME}:${RABBITMQ_PASSWORD}@rabbitmq:15672/api/
       FLOWER_PERSISTENT: "True"
-      FLOWER_DB: /data/flower.db
       TZ: Europe/Kiev
     ports:
       - "127.0.0.1:5555:5555"

@@ -21,6 +21,7 @@ class BaseTelegramChannel(abc.ABC):
     its runs. A channel without `channel_id` is disabled and sends nothing.
     """
     title: t.ClassVar[str]
+    notify_progress: t.ClassVar[bool] = True
 
     # telegram rejects messages over 4096 chars, keep the traceback tail
     MAX_EXCEPTION_CHARS: t.Final[int] = 1500
@@ -58,6 +59,9 @@ class BaseTelegramChannel(abc.ABC):
             execution_status: IntEnum,
             celery_details: dict[str, t.Any] | None = None
     ) -> None:
+        if not self.notify_progress:
+            return
+
         # ------------------------------------------------------------------------ #
         is_resumed: bool = bool(task_run.timeframes)
         info_message: str = (
@@ -92,6 +96,9 @@ class BaseTelegramChannel(abc.ABC):
             duration: float,
             celery_details: dict[str, t.Any] | None = None
     ) -> None:
+        if not self.notify_progress:
+            return
+
         # ------------------------------------------------------------------------ #
         info_message: str = (
             f"{self.task_emoji} {self.title}: completed {self.templates.emoji.end}"

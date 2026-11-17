@@ -10,9 +10,10 @@ services:
       TZ: Europe/Kiev
     ports:
       - "127.0.0.1:${RABBITMQ_PORT:-5672}:5672"
-      - "127.0.0.1:15672:15672"  # management ui
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
+      # permits the transient queues celery events / flower need (see the file)
+      - ./rabbitmq.conf:/etc/rabbitmq/conf.d/20-celery.conf:ro
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 10s

@@ -35,7 +35,8 @@ class TelegramApiNotifierClient(BaseApiClient):
             self, *,
             text: str,
             disable_notification: bool = False,
-            reply_to_message_id: int | None = None
+            reply_to_message_id: int | None = None,
+            reply_markup: dict[str, t.Any] | None = None
     ) -> int | None:
         with contextlib.suppress(aiohttp.ClientResponseError):
             response: dict[str, t.Any] = (
@@ -43,7 +44,8 @@ class TelegramApiNotifierClient(BaseApiClient):
                     **self.request_data.send_message(
                         text=text,
                         disable_notification=disable_notification,
-                        reply_to_message_id=reply_to_message_id
+                        reply_to_message_id=reply_to_message_id,
+                        reply_markup=reply_markup,
                     )
                 )
             )

@@ -1,6 +1,7 @@
 __all__ = ("TelegramApiRequestSendData",)
 
 import abc
+import json
 import typing as t
 from enum import StrEnum
 
@@ -39,7 +40,8 @@ class TelegramApiRequestSendData:
                 self, *,
                 text: str,
                 disable_notification: bool = False,
-                reply_to_message_id: int | None = None
+                reply_to_message_id: int | None = None,
+                reply_markup: dict[str, t.Any] | None = None
         ) -> dict[str, t.Any]:
             # ------------------------------------------------------------------------ #
             data: dict[str, t.Any] = {
@@ -49,6 +51,12 @@ class TelegramApiRequestSendData:
                 "disable_web_page_preview": True,
                 "disable_notification": disable_notification,
             }
+            # ------------------------------------------------------------------------ #
+
+            # ------------------------------------------------------------------------ #
+            # sent as form data: nested objects go as a json string
+            if reply_markup is not None:
+                data["reply_markup"] = json.dumps(reply_markup)
             # ------------------------------------------------------------------------ #
 
             # ------------------------------------------------------------------------ #

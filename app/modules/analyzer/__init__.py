@@ -10,6 +10,8 @@ from app.clients.ai_client.gemini import GeminiAIClient
 from app.modules.domains.interactions.schemas import VacancyMatchSchema
 from app.modules.domains.vacancies.schemas import VacancySchema
 
+from .cleaner import TextCleaner
+
 
 class VacancyMatchAnalyzer:
     SYSTEM_PROMPT: t.Final[str] = textwrap.dedent(
@@ -30,9 +32,9 @@ class VacancyMatchAnalyzer:
         """
     ).strip()
 
-    # long descriptions are cut, the beginning carries the requirements
-    MAX_DESCRIPTION_CHARS: t.Final[int] = 8000
-    MAX_CV_CHARS: t.Final[int] = 8000
+    # long descriptions are cut, the beginning carries the requirements; the CV
+    # comes already cleaned and cut by the task (see TextCleaner.clean_cv)
+    MAX_DESCRIPTION_CHARS: t.Final[int] = 4000
 
     def __init__(self, *, ai_client: BaseAIClient[VacancyMatchSchema] | None = None) -> None:
         # ------------------------------------------------------------------------ #
@@ -46,6 +48,7 @@ class VacancyMatchAnalyzer:
         # ------------------------------------------------------------------------ #
 
     async def analyze(self, *, cv_text: str, vacancy: VacancySchema) -> VacancyMatchSchema:
+        """`cv_text` is expected to be cleaned already: it is sent as is."""
         result = await self._ai_client.run(
             agent=self._agent,
             request=AIRequest(
@@ -56,16 +59,16 @@ class VacancyMatchAnalyzer:
         return result.output
 
     def _build_user_prompt(self, *, cv_text: str, vacancy: VacancySchema) -> str:
+        description: str = TextCleaner.clean_vacancy(
+            vacancy.description or "", max_chars=self.MAX_DESCRIPTION_CHARS
+        )
         return "\n".join(
             [
-                "# Candidate CV",
-                cv_text[: self.MAX_CV_CHARS],
+                "# CV",
+                cv_text,
                 "",
-                "# Vacancy",
-                f"Title: {vacancy.title or '-'}",
-                f"Company: {vacancy.company or '-'}",
-                f"Source: {vacancy.source}",
-                "Description:",
-                (vacancy.description or "")[: self.MAX_DESCRIPTION_CHARS],
+                f"# Vacancy: {vacancy.title or '-'}"
+                + (f" ({vacancy.company})" if vacancy.company else ""),
+                description,
             ]
         )

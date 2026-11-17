@@ -37,6 +37,10 @@ class BaseCeleryApp(Celery):  # type: ignore[misc]
         self.conf.update(worker_prefetch_multiplier=1)
         self.conf.update(worker_hijack_root_logger=False)
         self.conf.update(worker_redirect_stdouts=False)
+        # monitoring events (same as `-E`): flower discovers workers only from
+        # their heartbeats, a worker without events never shows up in the ui
+        self.conf.update(worker_send_task_events=True)
+        self.conf.update(task_send_sent_event=True)
         # ------------------------------------------------------------------------ #
 
         # [task settings]
