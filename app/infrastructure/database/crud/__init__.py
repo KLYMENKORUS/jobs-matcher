@@ -29,11 +29,14 @@ class BaseCRUD[ModelT: Base]:
         await self._session.flush()
         return instance
 
-    async def create_many(self, *, items: Sequence[dict[str, t.Any]]) -> list[ModelT]:
+    async def create_many(
+        self, *, items: Sequence[dict[str, t.Any]]
+    ) -> list[ModelT]:
         instances: list[ModelT] = [self.model(**values) for values in items]
         self._session.add_all(instances)
         await self._session.flush()
         return instances
+
     # ------------------------------------------------------------------------ #
 
     # [read]
@@ -46,24 +49,26 @@ class BaseCRUD[ModelT: Base]:
         return await self._session.scalar(query)
 
     async def get_many(
-            self,
-            *,
-            offset: int = 0,
-            limit: int | None = 100,
-            **filters: t.Any
+        self, *, offset: int = 0, limit: int | None = 100, **filters: t.Any
     ) -> Sequence[ModelT]:
         query = select(self.model).filter_by(**filters).offset(offset).limit(limit)
         return (await self._session.scalars(query)).all()
 
     async def exists(self, **filters: t.Any) -> bool:
-        query = select(exists().where(
-            *(getattr(self.model, key) == value for key, value in filters.items())
-        ))
+        query = select(
+            exists().where(
+                *(
+                    getattr(self.model, key) == value
+                    for key, value in filters.items()
+                )
+            )
+        )
         return bool(await self._session.scalar(query))
 
     async def count(self, **filters: t.Any) -> int:
         query = select(func.count()).select_from(self.model).filter_by(**filters)
         return int(await self._session.scalar(query) or 0)
+
     # ------------------------------------------------------------------------ #
 
     # [update]
@@ -76,6 +81,7 @@ class BaseCRUD[ModelT: Base]:
             .returning(self.model)
         )
         return await self._session.scalar(query)
+
     # ------------------------------------------------------------------------ #
 
     # [delete]
@@ -87,4 +93,5 @@ class BaseCRUD[ModelT: Base]:
             .returning(self.model.id)  # type: ignore[attr-defined]
         )
         return await self._session.scalar(query) is not None
+
     # ------------------------------------------------------------------------ #

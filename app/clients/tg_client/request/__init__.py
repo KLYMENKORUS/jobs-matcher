@@ -9,17 +9,16 @@ from app.shared.settings import settings
 
 
 class TelegramApiRequestSendData:
-
     ################################################################################
     class Endpoint(StrEnum):
         SEND_MESSAGE = "sendMessage"
         SEND_DOCUMENT = "sendDocument"
         SEND_PHOTO = "sendPhoto"
+
     ################################################################################
 
     ################################################################################
     class BaseRequestSendData(abc.ABC):
-
         def __init__(self, *, parent: TelegramApiRequestSendData) -> None:
             # ------------------------------------------------------------------------ #
             self.parent: TelegramApiRequestSendData = parent
@@ -28,20 +27,21 @@ class TelegramApiRequestSendData:
         @abc.abstractmethod
         def get_url(self) -> str:
             pass
+
     ################################################################################
 
     ################################################################################
     class SendMessage(BaseRequestSendData):
-
         def get_url(self) -> str:
             return f"{self.parent.TELEGRAM_API}/{self.parent.Endpoint.SEND_MESSAGE}"
 
         def __call__(
-                self, *,
-                text: str,
-                disable_notification: bool = False,
-                reply_to_message_id: int | None = None,
-                reply_markup: dict[str, t.Any] | None = None
+            self,
+            *,
+            text: str,
+            disable_notification: bool = False,
+            reply_to_message_id: int | None = None,
+            reply_markup: dict[str, t.Any] | None = None,
         ) -> dict[str, t.Any]:
             # ------------------------------------------------------------------------ #
             data: dict[str, t.Any] = {
@@ -69,23 +69,21 @@ class TelegramApiRequestSendData:
                 )
             # ------------------------------------------------------------------------ #
 
-            return {
-                "url": self.get_url(),
-                "data": data
-            }
+            return {"url": self.get_url(), "data": data}
+
     ################################################################################
 
     ################################################################################
     class SendDocument(BaseRequestSendData):
-
         def get_url(self) -> str:
             return f"{self.parent.TELEGRAM_API}/{self.parent.Endpoint.SEND_DOCUMENT}"
 
         def __call__(
-                self, *,
-                document: str,
-                disable_notification: bool = False,
-                caption: str | None = None
+            self,
+            *,
+            document: str,
+            disable_notification: bool = False,
+            caption: str | None = None,
         ) -> dict[str, t.Any]:
             return {
                 "url": self.get_url(),
@@ -93,22 +91,23 @@ class TelegramApiRequestSendData:
                     "chat_id": self.parent.channel_id,
                     "disable_notification": disable_notification,
                     "parse_mode": "HTML",
-                    "caption": caption
-                }
+                    "caption": caption,
+                },
             }
+
     ################################################################################
 
     ################################################################################
     class SendPhoto(BaseRequestSendData):
-
         def get_url(self) -> str:
             return f"{self.parent.TELEGRAM_API}/{self.parent.Endpoint.SEND_PHOTO}"
 
         def __call__(
-                self, *,
-                photo: bytes,
-                caption: str,
-                disable_notification: bool = False
+            self,
+            *,
+            photo: bytes,
+            caption: str,
+            disable_notification: bool = False,
         ) -> dict[str, t.Any]:
             return {
                 "url": self.get_url(),
@@ -118,9 +117,10 @@ class TelegramApiRequestSendData:
                     "parse_mode": "HTML",
                     "disable_web_page_preview": True,
                     "disable_notification": disable_notification,
-                    "photo": photo
-                }
+                    "photo": photo,
+                },
             }
+
     ################################################################################
 
     def __init__(self, *, channel_id: str) -> None:

@@ -3,7 +3,9 @@ import traceback
 from app.modules.data_extractor.schemas.vacancy import VacancyMain
 from app.modules.domains.vacancies import VacancySchema
 from app.shared.utils.enums.domains.vacancies import VacancyStatus
-from app.shared.utils.enums.tasks import ParsingExecutionStatus as ExecutionStatus
+from app.shared.utils.enums.tasks import (
+    ParsingExecutionStatus as ExecutionStatus,
+)
 from app.shared.utils.logger.decorators import delimit_wrapper
 
 from ..._base.states import BaseTaskState
@@ -19,24 +21,29 @@ class ParsingCollectVacancyDetailsState(BaseTaskState):
     with the vacancies that are still NEW. Not limited to this run: NEW
     vacancies left by an earlier run are picked up too.
     """
+
     task: ParsingTask
     execution_status = ExecutionStatus.COLLECT_VACANCY_DETAILS
 
     @delimit_wrapper(
-        section="parsing", obj="collect-vacancy-details",
-        detail="collect details of new vacancies", is_subdelimit=True
+        section="parsing",
+        obj="collect-vacancy-details",
+        detail="collect details of new vacancies",
+        is_subdelimit=True,
     )
     async def run(self) -> None:
         sources: list[str] = [
             str(source) for source in self.task.extractor_factory.available_sources()
         ]
 
-        vacancies: list[VacancySchema] = (
-            await self.task.vacancy_service.get_by_status(
-                status=VacancyStatus.NEW, sources=sources, limit=None
-            )
+        vacancies: list[
+            VacancySchema
+        ] = await self.task.vacancy_service.get_by_status(
+            status=VacancyStatus.NEW, sources=sources, limit=None
         )
-        self.task.logger.info(f"[{self.task.log_labels}] new vacancies: {len(vacancies)}")
+        self.task.logger.info(
+            f"[{self.task.log_labels}] new vacancies: {len(vacancies)}"
+        )
 
         results: list[bool] = [
             await self._collect(vacancy=vacancy) for vacancy in vacancies
@@ -53,11 +60,9 @@ class ParsingCollectVacancyDetailsState(BaseTaskState):
 
     async def _collect(self, *, vacancy: VacancySchema) -> bool:
         try:
-            main: VacancyMain = (
-                await self.task.extractor_factory(source=vacancy.source).vacancy.extract_main(
-                    url=vacancy.url
-                )
-            )
+            main: VacancyMain = await self.task.extractor_factory(
+                source=vacancy.source
+            ).vacancy.extract_main(url=vacancy.url)
             await self.task.vacancy_service.save_details(
                 vacancy_id=vacancy.id, details=main.to_create_schema()
             )

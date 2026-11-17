@@ -12,10 +12,7 @@ class ParsingTelegramChannel(BaseTelegramChannel):
     title = "vacancies parsing"
 
     def __init__(self, *, logger: Logger) -> None:
-        super().__init__(
-            logger=logger,
-            channel_id=settings.TELEGRAM_CHANNEL_PARSING
-        )
+        super().__init__(logger=logger, channel_id=settings.TELEGRAM_CHANNEL_PARSING)
 
     @property
     def task_emoji(self) -> str:

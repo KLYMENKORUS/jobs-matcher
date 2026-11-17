@@ -7,7 +7,10 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.shared.utils.enums.domains.vacancies import VacancySource, VacancyStatus
+from app.shared.utils.enums.domains.vacancies import (
+    VacancySource,
+    VacancyStatus,
+)
 
 
 # [vacancy]
@@ -19,6 +22,7 @@ class VacancyCreateSchema(BaseModel):
     and its details are collected later. A search that returns full data saves
     it as COLLECTED right away.
     """
+
     url: str = Field(max_length=512)
     source: VacancySource
     posted_at: datetime | None = Field(default=None)
@@ -40,4 +44,6 @@ class VacancySchema(BaseModel):
     status: VacancyStatus
     posted_at: datetime | None = None
     created_at: datetime
+
+
 ################################################################################

@@ -3,7 +3,9 @@ __all__ = ("TheJobVacanciesSearchExtractor",)
 import datetime as dt
 import typing as t
 
-from app.infrastructure.source.parser.api.schemas.thejob.search import JobSearch
+from app.infrastructure.source.parser.api.schemas.thejob.search import (
+    JobSearch,
+)
 from app.modules.data_extractor.decorators import data_extractor_validation
 from app.modules.data_extractor.schemas.search import (
     VacanciesSearchResults,
@@ -15,16 +17,18 @@ from ....adapters.thejob import TheJobDataExtractorAdapter
 
 
 class TheJobVacanciesSearchExtractor(TheJobDataExtractorAdapter):
-
     @delimit_wrapper(
-        section="search", obj="vacancies-search-results", detail="data extraction"
+        section="search",
+        obj="vacancies-search-results",
+        detail="data extraction",
     )
     @data_extractor_validation(datatype="search / vacancies-search-results")
     async def __call__(
-            self, *,
-            query: str,
-            max_pages: int | None = None,
-            collected_until: dt.datetime | None = None,
+        self,
+        *,
+        query: str,
+        max_pages: int | None = None,
+        collected_until: dt.datetime | None = None,
     ) -> VacanciesSearchResults:
         self.logger.info(f"[{self.log_labels}] search query: {query}")
 
@@ -33,14 +37,17 @@ class TheJobVacanciesSearchExtractor(TheJobDataExtractorAdapter):
         # ------------------------------------------------------------------------ #
 
         # ------------------------------------------------------------------------ #
-        async for job_search in self._iter_search_pages(query=query, max_pages=max_pages):
+        async for job_search in self._iter_search_pages(
+            query=query, max_pages=max_pages
+        ):
             search_results.total = job_search.pagination.count
 
             for job in job_search.jobs:
                 vacancy = self.to_vacancy_main(job=job)
 
                 if self.should_skip_vacancy(
-                        posted_at=vacancy.posted_at, collected_until=collected_until
+                    posted_at=vacancy.posted_at,
+                    collected_until=collected_until,
                 ):
                     self.logger.info(
                         f"[{self.log_labels}] reached already collected vacancies "
@@ -67,7 +74,7 @@ class TheJobVacanciesSearchExtractor(TheJobDataExtractorAdapter):
         return search_results
 
     async def _iter_search_pages(
-            self, *, query: str, max_pages: int | None
+        self, *, query: str, max_pages: int | None
     ) -> t.AsyncIterator[JobSearch]:
         first_page: JobSearch = await self._extract_search_page(query=query, page=1)
         yield first_page
@@ -84,6 +91,8 @@ class TheJobVacanciesSearchExtractor(TheJobDataExtractorAdapter):
 
         return await self.api_client.response_data.job_api.search.get(
             data=(
-                await self.api_client.search(query=query, page=page, order_by_date="desc")
+                await self.api_client.search(
+                    query=query, page=page, order_by_date="desc"
+                )
             ).json_data
         )

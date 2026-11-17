@@ -11,7 +11,6 @@ from app.shared.utils.requests.session import AsyncSessionPool
 
 
 class BaseApiClient:
-
     def __init__(self, *, logger: Logger, log_labels: LogLabels) -> None:
 
         # ------------------------------------------------------------------------ #
@@ -19,8 +18,9 @@ class BaseApiClient:
         # ------------------------------------------------------------------------ #
         self.log_labels: LogLabels = log_labels
         # ------------------------------------------------------------------------ #
-        self.session_pool: AsyncSessionPool = \
-            AsyncSessionPool(logger=self.logger, log_labels=self.log_labels)
+        self.session_pool: AsyncSessionPool = AsyncSessionPool(
+            logger=self.logger, log_labels=self.log_labels
+        )
         # ------------------------------------------------------------------------ #
 
     async def post(self, *, url: str, **kwargs: t.Any) -> t.Any:

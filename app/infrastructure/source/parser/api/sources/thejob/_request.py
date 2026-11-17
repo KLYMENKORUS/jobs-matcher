@@ -15,10 +15,10 @@ type OrderByDate = t.Literal["asc", "desc"]
 
 
 class JobApiRequestData(BaseSourceApiRequestData):
-
     ################################################################################
     class Endpoint(StrEnum):
         JOB = "job"
+
     ################################################################################
 
     # [search]
@@ -41,10 +41,11 @@ class JobApiRequestData(BaseSourceApiRequestData):
             return f"{self._parent.url}/{self._parent.Endpoint.JOB}"
 
         def _build_params(
-                self, *,
-                query: str,
-                page: int,
-                order_by_date: OrderByDate | None,
+            self,
+            *,
+            query: str,
+            page: int,
+            order_by_date: OrderByDate | None,
         ) -> dict[str, t.Any]:
             return self.prepare_params(
                 **{
@@ -58,20 +59,20 @@ class JobApiRequestData(BaseSourceApiRequestData):
             )
 
         def get(
-                self, *,
-                query: str,
-                page: int = 1,
-                order_by_date: OrderByDate | None = "desc",
+            self,
+            *,
+            query: str,
+            page: int = 1,
+            order_by_date: OrderByDate | None = "desc",
         ) -> dict[str, t.Any]:
             return {
                 "url": self.get_url(),
                 "method": self.http_method,
                 "params": self._build_params(
-                    query=query,
-                    page=page,
-                    order_by_date=order_by_date
-                )
+                    query=query, page=page, order_by_date=order_by_date
+                ),
             }
+
     ################################################################################
 
     # [details]
@@ -94,6 +95,7 @@ class JobApiRequestData(BaseSourceApiRequestData):
                 "url": self.get_url(job_slug=job_id),
                 "method": self.http_method,
             }
+
     ################################################################################
 
     def __init__(self) -> None:
@@ -110,7 +112,6 @@ class JobApiRequestData(BaseSourceApiRequestData):
 
 
 class TheJobApiRequestData:
-
     def __init__(self) -> None:
         # ------------------------------------------------------------------------ #
         self.job_api: JobApiRequestData = JobApiRequestData()

@@ -11,7 +11,6 @@ from ...base.scraper.curl import AsyncBaseCurlScraperClient
 
 
 class AsyncCurlScraperClient(AsyncBaseCurlScraperClient):
-
     async def __aenter__(self) -> t.Self:
         self._session = AsyncSession(impersonate="chrome", timeout=10)
         await self._session.__aenter__()  # type: ignore[no-untyped-call]
@@ -19,10 +18,10 @@ class AsyncCurlScraperClient(AsyncBaseCurlScraperClient):
         return self
 
     async def __aexit__(
-            self,
-            exc_type: type[BaseException] | None,
-            exc_val: BaseException | None,
-            exc_tb: types.TracebackType | None
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: types.TracebackType | None,
     ) -> None:
         session: AsyncSession[Response] | None = self._session
         self._session = None
@@ -32,10 +31,8 @@ class AsyncCurlScraperClient(AsyncBaseCurlScraperClient):
 
     async def get(self, *, request_params: ScraperRequestParams) -> Response:
         request_params.headers = self.update_headers(headers=request_params.headers)
-        params: dict[str, t.Any] = (
-            self.prepare_request_params(
-                params=request_params, exclude_timeout=True
-            )
+        params: dict[str, t.Any] = self.prepare_request_params(
+            params=request_params, exclude_timeout=True
         )
 
         self.logger.debug(

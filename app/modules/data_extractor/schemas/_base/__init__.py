@@ -13,9 +13,7 @@ def _validate_http_url(value: str) -> str:
         return str(_HTTP_URL_ADAPTER.validate_python(value))
     except ValidationError:
         raise PydanticCustomError(
-            "url_parsing",
-            "Invalid format URL {value}",
-            {"value": value}
+            "url_parsing", "Invalid format URL {value}", {"value": value}
         ) from None
 
 

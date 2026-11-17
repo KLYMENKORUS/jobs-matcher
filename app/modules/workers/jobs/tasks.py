@@ -1,9 +1,4 @@
-__all__ = (
-    "app",
-    "parse_vacancies",
-    "analyze_vacancies",
-    "send_matches"
-)
+__all__ = ("app", "parse_vacancies", "analyze_vacancies", "send_matches")
 
 from app.infrastructure.database.service import UnitOfWork
 from app.modules.workers.base import BaseTaskWithRetry, run_async_task
@@ -22,11 +17,16 @@ def parse_vacancies(self: BaseTaskWithRetry) -> bool:
         from app.modules.tasks.parsing.task import ParsingTask
 
         logger = Logger(name="parsing-worker", disable_stream_handler=False)
-        logger.subinfo(f"[{self.log_labels}] start parsing ({self.get_celery_details()})")
+        logger.subinfo(
+            f"[{self.log_labels}] start parsing ({self.get_celery_details()})"
+        )
         async with UnitOfWork() as uow:
             return await ParsingTask(
-                logger=logger, uow=uow, celery_details=self.get_celery_details()
+                logger=logger,
+                uow=uow,
+                celery_details=self.get_celery_details(),
             ).run()
+
     # ------------------------------------------------------------------------ #
 
     if result := run_async_task(_process_task):
@@ -44,11 +44,16 @@ def analyze_vacancies(self: BaseTaskWithRetry) -> bool:
         from app.modules.tasks.analysis.task import AnalysisTask
 
         logger = Logger(name="analysis-worker", disable_stream_handler=False)
-        logger.subinfo(f"[{self.log_labels}] start analysis ({self.get_celery_details()})")
+        logger.subinfo(
+            f"[{self.log_labels}] start analysis ({self.get_celery_details()})"
+        )
         async with UnitOfWork() as uow:
             return await AnalysisTask(
-                logger=logger, uow=uow, celery_details=self.get_celery_details()
+                logger=logger,
+                uow=uow,
+                celery_details=self.get_celery_details(),
             ).run()
+
     # ------------------------------------------------------------------------ #
 
     if result := run_async_task(_process_task):
@@ -65,11 +70,16 @@ def send_matches(self: BaseTaskWithRetry) -> bool:
         from app.modules.tasks.sending.task import SendingTask
 
         logger = Logger(name="sending-worker", disable_stream_handler=False)
-        logger.subinfo(f"[{self.log_labels}] start sending ({self.get_celery_details()})")
+        logger.subinfo(
+            f"[{self.log_labels}] start sending ({self.get_celery_details()})"
+        )
         async with UnitOfWork() as uow:
             return await SendingTask(
-                logger=logger, uow=uow, celery_details=self.get_celery_details()
+                logger=logger,
+                uow=uow,
+                celery_details=self.get_celery_details(),
             ).run()
+
     # ------------------------------------------------------------------------ #
 
     return run_async_task(_process_task)

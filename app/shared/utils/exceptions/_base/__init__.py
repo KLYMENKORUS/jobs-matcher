@@ -1,6 +1,4 @@
-__all__ = (
-    "BaseErrorException",
-)
+__all__ = ("BaseErrorException",)
 
 import abc
 
@@ -8,7 +6,6 @@ from app.shared.utils.logger import logger
 
 
 class BaseErrorException(Exception, abc.ABC):
-
     def __init__(self) -> None:
         super().__init__(str(self))
 

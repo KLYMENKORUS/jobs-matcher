@@ -9,10 +9,7 @@ from ....adapters.thejob import TheJobDataExtractorAdapter
 
 
 class TheJobVacancyMainExtractor(TheJobDataExtractorAdapter):
-
-    @delimit_wrapper(
-        section="vacancy", obj="main data", detail="data extraction"
-    )
+    @delimit_wrapper(section="vacancy", obj="main data", detail="data extraction")
     @data_extractor_validation(datatype="vacancy / main data")
     async def __call__(self, *, url: str) -> VacancyMain:
         self.logger.info(f"[{self.log_labels}] vacancy url: {url}")

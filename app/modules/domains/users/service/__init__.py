@@ -14,15 +14,18 @@ from app.shared.utils.logger.decorators import delimit_wrapper
 
 
 class UserService:
-
-    def __init__(self, *, uow_factory: t.Callable[[], UnitOfWork] = UnitOfWork) -> None:
+    def __init__(
+        self, *, uow_factory: t.Callable[[], UnitOfWork] = UnitOfWork
+    ) -> None:
         # ------------------------------------------------------------------------ #
         self._uow_factory: t.Callable[[], UnitOfWork] = uow_factory
         # ------------------------------------------------------------------------ #
 
     @staticmethod
     async def _get_user_or_raise(uow: UnitOfWork, *, telegram_id: int) -> User:
-        user: User | None = await uow.users.get_by_telegram_id(telegram_id=telegram_id)
+        user: User | None = await uow.users.get_by_telegram_id(
+            telegram_id=telegram_id
+        )
         if user is None:
             raise UserNotFoundError(telegram_id=telegram_id)
         return user
@@ -31,18 +34,23 @@ class UserService:
     ################################################################################
     async def get_by_telegram_id(self, *, telegram_id: int) -> UserSchema | None:
         async with self._uow_factory() as uow:
-            user: User | None = await uow.users.get_by_telegram_id(telegram_id=telegram_id)
+            user: User | None = await uow.users.get_by_telegram_id(
+                telegram_id=telegram_id
+            )
             return UserSchema.model_validate(user) if user else None
 
     async def get_active_users(self) -> list[UserSchema]:
         async with self._uow_factory() as uow:
             users = await uow.users.get_active()
             return [UserSchema.model_validate(user) for user in users]
+
     ################################################################################
 
     # [write]
     ################################################################################
-    @delimit_wrapper(section="users", obj="service", detail="register", is_subdelimit=True)
+    @delimit_wrapper(
+        section="users", obj="service", detail="register", is_subdelimit=True
+    )
     async def register(self, *, data: UserCreateSchema) -> UserSchema:
         async with self._uow_factory() as uow:
             # ------------------------------------------------------------------------ #
@@ -62,7 +70,9 @@ class UserService:
 
             return UserSchema.model_validate(user)
 
-    async def update_cv(self, *, telegram_id: int, filename: str, content: bytes) -> UserSchema:
+    async def update_cv(
+        self, *, telegram_id: int, filename: str, content: bytes
+    ) -> UserSchema:
         """
         Saves the uploaded CV as `<CV_STORAGE_DIR>/<telegram_id><ext>` and stores
         its path; the text is extracted later, by the analysis.
@@ -98,6 +108,7 @@ class UserService:
 
         if cv_file:
             Path(cv_file).unlink(missing_ok=True)
+
     ################################################################################
 
     @staticmethod

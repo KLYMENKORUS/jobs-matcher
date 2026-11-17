@@ -4,7 +4,13 @@ import abc
 from contextlib import AbstractAsyncContextManager
 from urllib.parse import ParseResult, urlparse
 
-from playwright.async_api import Browser, BrowserContext, Page, ProxySettings, ViewportSize
+from playwright.async_api import (
+    Browser,
+    BrowserContext,
+    Page,
+    ProxySettings,
+    ViewportSize,
+)
 
 from app.shared.utils.logger import Logger, LogLabels
 
@@ -12,10 +18,7 @@ from app.shared.utils.logger import Logger, LogLabels
 class AsyncBaseContextClient(
     AbstractAsyncContextManager["AsyncBaseContextClient"], abc.ABC
 ):
-
-    def __init__(
-            self, *, logger: Logger, proxy_server: str | None = None
-    ) -> None:
+    def __init__(self, *, logger: Logger, proxy_server: str | None = None) -> None:
         # ------------------------------------------------------------------------ #
         self.logger: Logger = logger
         # ------------------------------------------------------------------------ #
@@ -41,14 +44,16 @@ class AsyncBaseContextClient(
     @property
     def active_page(self) -> Page:
         if self.page is None:
-            raise RuntimeError("browser session is not launched, call `launch_browser_session()`")
+            raise RuntimeError(
+                "browser session is not launched, call `launch_browser_session()`"
+            )
         return self.page
 
     @property
     async def get_viewport_size(self) -> ViewportSize:
         return ViewportSize(
             width=await self.active_page.evaluate("window.innerWidth"),
-            height=await self.active_page.evaluate("window.innerHeight")
+            height=await self.active_page.evaluate("window.innerHeight"),
         )
 
     async def get_proxy_settings(self) -> ProxySettings | None:
@@ -61,12 +66,13 @@ class AsyncBaseContextClient(
             parse_proxy_server.hostname,
             parse_proxy_server.port,
             parse_proxy_server.username,
-            parse_proxy_server.password
+            parse_proxy_server.password,
         )
 
         proxy_settings: ProxySettings = ProxySettings(
             server=(server := f"{protocol}://{ip}:{port}"),
-            username=username, password=password
+            username=username,
+            password=password,
         )
         self.logger.debug(f"[{self.log_labels}] currently usage proxy: {server}")
         return proxy_settings

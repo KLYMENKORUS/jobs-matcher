@@ -1,7 +1,4 @@
-__all__ = (
-    "UserCreateSchema",
-    "UserSchema"
-)
+__all__ = ("UserCreateSchema", "UserSchema")
 
 from datetime import datetime
 

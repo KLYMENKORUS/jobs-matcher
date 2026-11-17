@@ -15,7 +15,9 @@ if t.TYPE_CHECKING:
 class UserSettings(Base):
     __tablename__ = "user_settings"
     __table_args__ = (
-        CheckConstraint("min_score >= 0 AND min_score <= 100", name="min_score_range"),
+        CheckConstraint(
+            "min_score >= 0 AND min_score <= 100", name="min_score_range"
+        ),
     )
 
     # [columns]

@@ -1,7 +1,4 @@
-__all__ = (
-    "UserSettingsSchema",
-    "UserSettingsUpdateSchema"
-)
+__all__ = ("UserSettingsSchema", "UserSettingsUpdateSchema")
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -27,6 +24,8 @@ class UserSettingsUpdateSchema(BaseModel):
         if value is None:
             return value
 
-        return list(dict.fromkeys(
-            keyword.strip().lower() for keyword in value if keyword.strip()
-        ))
+        return list(
+            dict.fromkeys(
+                keyword.strip().lower() for keyword in value if keyword.strip()
+            )
+        )

@@ -22,8 +22,6 @@ class BaseSourceApiRequestData:
 
         @classmethod
         def prepare_params(cls, **kwargs: t.Any) -> dict[str, t.Any]:
-            return {
-                key: value for key, value in kwargs.items()
-                if value is not None
-            }
+            return {key: value for key, value in kwargs.items() if value is not None}
+
     ################################################################################

@@ -30,6 +30,7 @@ class AnalysisTask(BaseProcessingTask[AnalysisExecutionStatus]):
       - ANALYZE_VACANCIES: the AI scores the rest -> PENDING or REJECTED.
     Every state only touches what is still NEW, so a restarted run continues.
     """
+
     task_type = TaskType.ANALYSIS
     execution_status_enum = AnalysisExecutionStatus
 
@@ -37,24 +38,26 @@ class AnalysisTask(BaseProcessingTask[AnalysisExecutionStatus]):
     MAX_CV_CHARS: t.ClassVar[int] = 4000
 
     def __init__(
-            self,
-            *,
-            logger: Logger,
-            uow: UnitOfWork,
-            analyzer: VacancyMatchAnalyzer | None = None,
-            celery_details: dict[str, t.Any] | None = None
+        self,
+        *,
+        logger: Logger,
+        uow: UnitOfWork,
+        analyzer: VacancyMatchAnalyzer | None = None,
+        celery_details: dict[str, t.Any] | None = None,
     ) -> None:
         super().__init__(
-            logger=logger, log_labels=LogLabels.ANALYSIS_TASK,
-            uow=uow, celery_details=celery_details
+            logger=logger,
+            log_labels=LogLabels.ANALYSIS_TASK,
+            uow=uow,
+            celery_details=celery_details,
         )
 
         # [services]
         # ------------------------------------------------------------------------ #
         self.user_service: UserService = UserService(uow_factory=self.get_uow)
         # ------------------------------------------------------------------------ #
-        self.interaction_service: InteractionService = (
-            InteractionService(uow_factory=self.get_uow)
+        self.interaction_service: InteractionService = InteractionService(
+            uow_factory=self.get_uow
         )
         # ------------------------------------------------------------------------ #
         self.analyzer: VacancyMatchAnalyzer = analyzer or VacancyMatchAnalyzer()

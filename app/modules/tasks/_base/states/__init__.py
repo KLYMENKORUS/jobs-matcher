@@ -16,6 +16,7 @@ class BaseTaskState(abc.ABC):
     One step of a task. A state must be safe to re-run: if the worker dies in
     the middle of it, the next run starts this same state again.
     """
+
     execution_status: t.ClassVar[IntEnum]
 
     def __init__(self, *, task: BaseProcessingTask[t.Any]) -> None:
@@ -29,7 +30,6 @@ class BaseTaskState(abc.ABC):
 
 
 class BaseIterableTaskState(t.Iterable[BaseTaskState]):
-
     def __init__(self, *states: BaseTaskState) -> None:
         # ------------------------------------------------------------------------ #
         self._states: tuple[BaseTaskState, ...] = states

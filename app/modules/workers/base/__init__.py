@@ -7,7 +7,11 @@ __all__ = (
 import asyncio
 import typing as t
 
-from aiohttp import ClientConnectionError, ClientConnectorError, ClientResponseError
+from aiohttp import (
+    ClientConnectionError,
+    ClientConnectorError,
+    ClientResponseError,
+)
 from celery import Celery, Task
 
 from app.infrastructure.database.client import db_client
@@ -16,7 +20,6 @@ from app.shared.utils.logger import LogLabels
 
 
 class BaseCeleryApp(Celery):  # type: ignore[misc]
-
     def __init__(self, *, main: str, broker: str) -> None:
         super().__init__(main=main, broker=broker)
 
@@ -60,7 +63,11 @@ class BaseCeleryApp(Celery):  # type: ignore[misc]
 
 class BaseTaskWithRetry(Task):  # type: ignore[misc]
     abstract: bool = True
-    autoretry_for = (ClientResponseError, ClientConnectionError, ClientConnectorError)
+    autoretry_for = (
+        ClientResponseError,
+        ClientConnectionError,
+        ClientConnectorError,
+    )
     max_retries: int = 3
     default_retry_delay: int = 30
 

@@ -5,15 +5,19 @@ from collections.abc import Sequence
 from datetime import UTC, datetime, timedelta
 
 from app.infrastructure.database.service import UnitOfWork
-from app.modules.domains.vacancies.schemas import VacancyCreateSchema, VacancySchema
+from app.modules.domains.vacancies.schemas import (
+    VacancyCreateSchema,
+    VacancySchema,
+)
 from app.shared.settings import settings
 from app.shared.utils.enums.domains.vacancies import VacancyStatus
 from app.shared.utils.logger.decorators import delimit_wrapper
 
 
 class VacancyService:
-
-    def __init__(self, *, uow_factory: t.Callable[[], UnitOfWork] = UnitOfWork) -> None:
+    def __init__(
+        self, *, uow_factory: t.Callable[[], UnitOfWork] = UnitOfWork
+    ) -> None:
         # ------------------------------------------------------------------------ #
         self._uow_factory: t.Callable[[], UnitOfWork] = uow_factory
         # ------------------------------------------------------------------------ #
@@ -22,10 +26,12 @@ class VacancyService:
     ################################################################################
     @delimit_wrapper(section="vacancies", obj="service", detail="save vacancies")
     async def save_vacancies(
-            self, *, vacancies: Sequence[VacancyCreateSchema]
+        self, *, vacancies: Sequence[VacancyCreateSchema]
     ) -> list[VacancySchema]:
         # ------------------------------------------------------------------------ #
-        unique: dict[str, VacancyCreateSchema] = {item.url: item for item in vacancies}
+        unique: dict[str, VacancyCreateSchema] = {
+            item.url: item for item in vacancies
+        }
         if not unique:
             return []
         # ------------------------------------------------------------------------ #
@@ -39,7 +45,7 @@ class VacancyService:
         return [VacancySchema.model_validate(vacancy) for vacancy in created]
 
     async def save_search_results(
-            self, *, keyword: str, vacancies: Sequence[VacancyCreateSchema]
+        self, *, keyword: str, vacancies: Sequence[VacancyCreateSchema]
     ) -> int:
         """
         Save one (source, keyword) search in a single transaction: new vacancies
@@ -49,7 +55,9 @@ class VacancyService:
         the "how far collected" mark are always saved together.
         Returns how many vacancies were newly inserted.
         """
-        unique: dict[str, VacancyCreateSchema] = {item.url: item for item in vacancies}
+        unique: dict[str, VacancyCreateSchema] = {
+            item.url: item for item in vacancies
+        }
         if not unique:
             return 0
 
@@ -68,7 +76,7 @@ class VacancyService:
         return len(created)
 
     async def get_collected_until(
-            self, *, sources: Sequence[str], keywords: Sequence[str]
+        self, *, sources: Sequence[str], keywords: Sequence[str]
     ) -> dict[tuple[str, str], datetime]:
         """
         (source, keyword) -> date the next search stops at: `posted_at` of the
@@ -79,8 +87,8 @@ class VacancyService:
                 sources=sources, keywords=keywords
             )
 
-        default: datetime = (
-            datetime.now(UTC) - timedelta(days=settings.PARSING_LOOKBACK_DAYS)
+        default: datetime = datetime.now(UTC) - timedelta(
+            days=settings.PARSING_LOOKBACK_DAYS
         )
         return {
             (source, keyword): found.get((source, keyword), default)
@@ -89,12 +97,13 @@ class VacancyService:
         }
 
     async def get_unprocessed_for_user(
-            self, *,
-            user_id: int,
-            keywords: Sequence[str] | None = None,
-            created_since: datetime | None = None,
-            exclude_ids: Sequence[int] | None = None,
-            limit: int | None = 50
+        self,
+        *,
+        user_id: int,
+        keywords: Sequence[str] | None = None,
+        created_since: datetime | None = None,
+        exclude_ids: Sequence[int] | None = None,
+        limit: int | None = 50,
     ) -> list[VacancySchema]:
         async with self._uow_factory() as uow:
             vacancies = await uow.vacancies.get_unprocessed_for_user(
@@ -107,10 +116,11 @@ class VacancyService:
             return [VacancySchema.model_validate(vacancy) for vacancy in vacancies]
 
     async def get_by_status(
-            self, *,
-            status: VacancyStatus,
-            sources: Sequence[str] | None = None,
-            limit: int | None = 50
+        self,
+        *,
+        status: VacancyStatus,
+        sources: Sequence[str] | None = None,
+        limit: int | None = 50,
     ) -> list[VacancySchema]:
         async with self._uow_factory() as uow:
             vacancies = await uow.vacancies.get_by_status(
@@ -118,7 +128,9 @@ class VacancyService:
             )
             return [VacancySchema.model_validate(vacancy) for vacancy in vacancies]
 
-    async def save_details(self, *, vacancy_id: int, details: VacancyCreateSchema) -> None:
+    async def save_details(
+        self, *, vacancy_id: int, details: VacancyCreateSchema
+    ) -> None:
         """Fill a NEW vacancy with its collected details and mark it COLLECTED."""
         values: dict[str, t.Any] = {
             "title": details.title,
@@ -136,6 +148,9 @@ class VacancyService:
 
     async def mark_failed(self, *, vacancy_id: int) -> None:
         async with self._uow_factory() as uow:
-            await uow.vacancies.set_status(id=vacancy_id, status=VacancyStatus.FAILED)
+            await uow.vacancies.set_status(
+                id=vacancy_id, status=VacancyStatus.FAILED
+            )
             await uow.commit()
+
     ################################################################################

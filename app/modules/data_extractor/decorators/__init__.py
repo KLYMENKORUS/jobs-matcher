@@ -37,7 +37,7 @@ class _DataExtractorValidation:
         # ------------------------------------------------------------------------ #
 
     def __call__[**P, R](
-            self, function: t.Callable[P, t.Coroutine[t.Any, t.Any, R]]
+        self, function: t.Callable[P, t.Coroutine[t.Any, t.Any, R]]
     ) -> t.Callable[P, t.Coroutine[t.Any, t.Any, R]]:
 
         @functools.wraps(function)
@@ -53,8 +53,7 @@ class _DataExtractorValidation:
             except Exception as exp:
                 source: str = str(obj.source)
                 logger.error(
-                    f"[{log_labels}] {source} data extraction error "
-                    f"({self._datatype} extraction)"
+                    f"[{log_labels}] {source} data extraction error ({self._datatype} extraction)"
                 )
                 logger.error(f"[{log_labels}] {traceback.format_exc()}")
                 raise SourceDataExtractionError(

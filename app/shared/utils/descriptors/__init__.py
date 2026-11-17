@@ -2,7 +2,8 @@ __all__ = (
     "RequiredField",
     "RequiredTypedField",
     "BaseAttributeAccessor",
-    "P", "TypeFunction"
+    "P",
+    "TypeFunction",
 )
 
 import functools
@@ -34,13 +35,14 @@ class BaseAttributeAccessor[T]:
     def __get__(self, instance: t.Any, owner: type[t.Any] | None = None) -> t.Self:
         if instance is None:
             return self
-        bound: t.Callable[..., t.Awaitable[T]] = self.function.__get__(instance, owner)
+        bound: t.Callable[..., t.Awaitable[T]] = self.function.__get__(
+            instance, owner
+        )
         (new_instance := self.__class__(bound)).instance = instance
         return new_instance
 
 
 class RequiredField:
-
     def __init__(self) -> None:
         # ------------------------------------------------------------------------ #
         self._private_name: str | None = None
@@ -53,7 +55,9 @@ class RequiredField:
         if instance is None:
             return self
         if (value := instance.__dict__.get(self._private_name)) is None:
-            raise AttributeError(f"The required field '{self._private_name}' is not set.")
+            raise AttributeError(
+                f"The required field '{self._private_name}' is not set."
+            )
         return value
 
     def __set__(self, instance: t.Any, value: t.Any) -> None:
@@ -77,7 +81,9 @@ class RequiredTypedField[T](RequiredField):
         # ------------------------------------------------------------------------ #
 
     @t.overload
-    def __get__(self, instance: None, owner: type[t.Any] | None = None) -> t.Self: ...
+    def __get__(
+        self, instance: None, owner: type[t.Any] | None = None
+    ) -> t.Self: ...
 
     @t.overload
     def __get__(self, instance: object, owner: type[t.Any] | None = None) -> T: ...

@@ -25,13 +25,8 @@ class AIRequest(BaseModel):
 
 
 class BaseAIClient[T: BaseModel](abc.ABC):
-
-    provider = RequiredTypedField(
-        expected_type=Provider
-    )
-    model = RequiredTypedField(
-        expected_type=Model
-    )
+    provider = RequiredTypedField(expected_type=Provider)
+    model = RequiredTypedField(expected_type=Model)
 
     def __init__(self, *, output_type: type[T]) -> None:
         # ------------------------------------------------------------------------ #
@@ -40,7 +35,7 @@ class BaseAIClient[T: BaseModel](abc.ABC):
 
     @staticmethod
     def run_failed_catch_wrapper[S, **P, R](
-            function: t.Callable[t.Concatenate[S, P], t.Awaitable[R]]
+        function: t.Callable[t.Concatenate[S, P], t.Awaitable[R]],
     ) -> t.Callable[t.Concatenate[S, P], t.Coroutine[t.Any, t.Any, R]]:
         # ------------------------------------------------------------------------ #
         @functools.wraps(function)
@@ -49,9 +44,9 @@ class BaseAIClient[T: BaseModel](abc.ABC):
                 return await function(self, *args, **kwargs)
             except Exception as exp:
                 raise AIRunFailedException(
-                    client_type=type(self).__name__,
-                    reason=str(exp)
+                    client_type=type(self).__name__, reason=str(exp)
                 ) from exp
+
         # ------------------------------------------------------------------------ #
 
         return wrapper
@@ -61,5 +56,7 @@ class BaseAIClient[T: BaseModel](abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def run(self, *, agent: Agent[None, T], request: AIRequest) -> AgentRunResult[T]:
+    async def run(
+        self, *, agent: Agent[None, T], request: AIRequest
+    ) -> AgentRunResult[T]:
         pass

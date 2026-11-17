@@ -9,7 +9,6 @@ from ..options import ChromeOptions
 
 
 class AsyncBrowserManager:
-
     def __init__(self, *, use_headless_mode: bool) -> None:
         # [browser options]
         # ------------------------------------------------------------------------ #
@@ -32,7 +31,7 @@ class AsyncBrowserManager:
             self.playwright = await async_playwright().start()
             browser: Browser = await self.playwright.chromium.launch(
                 headless=self.use_headless_mode,
-                args=self._chrome_options.get_all_chrome_options()
+                args=self._chrome_options.get_all_chrome_options(),
             )
         except Exception:  # noqa
             await self.shutdown()

@@ -26,40 +26,42 @@ class ParsingTask(BaseProcessingTask[ParsingExecutionStatus]):
     START -> PREPARE_SEARCH_QUERIES -> COLLECT_VACANCY_URLS
           -> COLLECT_VACANCY_DETAILS -> LINK_VACANCIES_TO_USERS -> COMPLETED
     """
+
     task_type = TaskType.PARSING
     execution_status_enum = ParsingExecutionStatus
 
     def __init__(
-            self, *,
-            logger: Logger,
-            uow: UnitOfWork,
-            celery_details: dict[str, t.Any] | None = None
+        self,
+        *,
+        logger: Logger,
+        uow: UnitOfWork,
+        celery_details: dict[str, t.Any] | None = None,
     ) -> None:
         super().__init__(
-            logger=logger, log_labels=LogLabels.PARSING_TASK,
-            uow=uow, celery_details=celery_details
+            logger=logger,
+            log_labels=LogLabels.PARSING_TASK,
+            uow=uow,
+            celery_details=celery_details,
         )
 
         # [services]
         # ------------------------------------------------------------------------ #
-        self.vacancy_service: VacancyService = (
-            VacancyService(uow_factory=self.get_uow)
+        self.vacancy_service: VacancyService = VacancyService(
+            uow_factory=self.get_uow
         )
         # ------------------------------------------------------------------------ #
-        self.user_settings_service: UserSettingsService = (
-            UserSettingsService(
-                uow_factory=self.get_uow
-            )
+        self.user_settings_service: UserSettingsService = UserSettingsService(
+            uow_factory=self.get_uow
         )
         # ------------------------------------------------------------------------ #
         self.user_service: UserService = UserService(uow_factory=self.get_uow)
         # ------------------------------------------------------------------------ #
-        self.interaction_service: InteractionService = (
-            InteractionService(uow_factory=self.get_uow)
+        self.interaction_service: InteractionService = InteractionService(
+            uow_factory=self.get_uow
         )
         # ------------------------------------------------------------------------ #
-        self.extractor_factory: DataExtractorFactory = (
-            DataExtractorFactory(logger=logger)
+        self.extractor_factory: DataExtractorFactory = DataExtractorFactory(
+            logger=logger
         )
         # ------------------------------------------------------------------------ #
 

@@ -17,25 +17,25 @@ from ...base.scraper.http import BaseScraperRequestClient
 
 
 class SourceScraperRequestClient(BaseScraperRequestClient):
-
     def __init__(self, *, logger: Logger) -> None:
         super().__init__(logger=logger)
 
         # ------------------------------------------------------------------------ #
-        self.session_pool: AsyncSessionPool = \
-            AsyncSessionPool(logger=self.logger, log_labels=self.log_labels)
+        self.session_pool: AsyncSessionPool = AsyncSessionPool(
+            logger=self.logger, log_labels=self.log_labels
+        )
         # ------------------------------------------------------------------------ #
         self._timeout: ClientTimeout = ClientTimeout(total=10)
         # ------------------------------------------------------------------------ #
 
     async def fetch_data(
-            self, *, request_params: ScraperRequestParams, **kwargs: t.Any
+        self, *, request_params: ScraperRequestParams, **kwargs: t.Any
     ) -> t.Any:
         raise NotImplementedError()
 
     @contextlib.asynccontextmanager
     async def _fetch(
-            self, *, request_params: ScraperRequestParams, **kwargs: t.Any
+        self, *, request_params: ScraperRequestParams, **kwargs: t.Any
     ) -> t.AsyncGenerator[ClientResponse]:
         # ------------------------------------------------------------------------ #
         request_params.headers = self.update_headers(headers=request_params.headers)

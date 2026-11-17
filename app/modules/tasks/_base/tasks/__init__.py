@@ -33,16 +33,18 @@ class BaseProcessingTask[S: IntEnum](abc.ABC):
     service of the task works through it (`uow_factory=self.get_uow`), so the
     whole run uses one db session.
     """
+
     task_type: t.ClassVar[TaskType]
     # set as a class attribute by every task, e.g. `= ParsingExecutionStatus`
     execution_status_enum: type[S]
 
     def __init__(
-            self, *,
-            logger: Logger,
-            log_labels: LogLabels,
-            uow: UnitOfWork,
-            celery_details: dict[str, t.Any] | None = None
+        self,
+        *,
+        logger: Logger,
+        log_labels: LogLabels,
+        uow: UnitOfWork,
+        celery_details: dict[str, t.Any] | None = None,
     ) -> None:
         # ------------------------------------------------------------------------ #
         self.logger: Logger = logger
@@ -94,6 +96,7 @@ class BaseProcessingTask[S: IntEnum](abc.ABC):
     @property
     def completed_status(self) -> S:
         return self.execution_status_enum["COMPLETED"]
+
     ################################################################################
 
     # [abstract]
@@ -101,12 +104,14 @@ class BaseProcessingTask[S: IntEnum](abc.ABC):
     @abc.abstractmethod
     def get_states(self) -> dict[S, BaseTaskState]:
         pass
+
     ################################################################################
 
     # [hooks]
     ################################################################################
     async def on_completed(self) -> None:  # noqa: B027 - optional hook
         """Called once, when the run reaches COMPLETED."""
+
     ################################################################################
 
     async def run(self) -> bool:
@@ -125,8 +130,8 @@ class BaseProcessingTask[S: IntEnum](abc.ABC):
         self.task_run = await self.run_service.get_or_create(
             task_type=self.task_type, start_status=self.start_status
         )
-        self.execution_status = (
-            self.execution_status_enum(self.task_run.execution_status)
+        self.execution_status = self.execution_status_enum(
+            self.task_run.execution_status
         )
         self.logger.info(
             f"[{self.log_labels}] task run (id: {self.task_run_id}), "
@@ -212,7 +217,7 @@ class BaseProcessingTask[S: IntEnum](abc.ABC):
         return time.monotonic() - self._started_at
 
     async def _notify(
-            self, send: t.Callable[[BaseTelegramChannel], t.Awaitable[None]]
+        self, send: t.Callable[[BaseTelegramChannel], t.Awaitable[None]]
     ) -> None:
         """Sends a task notification; a telegram failure never fails the task."""
         if self.tg_channel is None or not self.tg_channel.enabled:
@@ -231,7 +236,9 @@ class BaseProcessingTask[S: IntEnum](abc.ABC):
 
         execution_status: S = self.execution_status_enum(self.execution_status + 1)
         self.execution_status = execution_status
-        await self.run_service.set_status(id=self.task_run_id, status=execution_status)
+        await self.run_service.set_status(
+            id=self.task_run_id, status=execution_status
+        )
 
     async def merge_details(self, **details: t.Any) -> None:
         await self.run_service.merge_details(id=self.task_run_id, details=details)

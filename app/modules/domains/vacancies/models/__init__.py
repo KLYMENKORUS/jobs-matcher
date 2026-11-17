@@ -73,6 +73,7 @@ class Vacancy(Base):
 
 class VacancyKeyword(Base):
     """Which search keyword a vacancy was found by (one vacancy - many keywords)."""
+
     __tablename__ = "vacancy_keywords"
     __table_args__ = (
         UniqueConstraint("vacancy_id", "keyword", name="uq_vacancy_keyword"),

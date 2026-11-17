@@ -16,8 +16,22 @@ down_revision: str | Sequence[str] | None = "9dc942580a27"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
-NEW_VALUES: tuple[str, ...] = ("new", "rejected", "pending", "sent", "applied", "skipped")
-OLD_VALUES: tuple[str, ...] = ("new", "pending", "sent", "applied", "skipped", "ignored")
+NEW_VALUES: tuple[str, ...] = (
+    "new",
+    "rejected",
+    "pending",
+    "sent",
+    "applied",
+    "skipped",
+)
+OLD_VALUES: tuple[str, ...] = (
+    "new",
+    "pending",
+    "sent",
+    "applied",
+    "skipped",
+    "ignored",
+)
 
 
 def _recreate_enum(values: tuple[str, ...]) -> None:
@@ -35,7 +49,9 @@ def _recreate_enum(values: tuple[str, ...]) -> None:
 def upgrade() -> None:
     """Upgrade schema."""
     # 'ignored' meant the same as 'skipped'
-    op.execute("UPDATE user_vacancy_interactions SET status = 'skipped' WHERE status = 'ignored'")
+    op.execute(
+        "UPDATE user_vacancy_interactions SET status = 'skipped' WHERE status = 'ignored'"
+    )
     _recreate_enum(NEW_VALUES)
 
     # analysis states: START=1, ANALYZE_VACANCIES 2 -> 4, COMPLETED 3 -> 5;
@@ -54,5 +70,7 @@ def downgrade() -> None:
         "ELSE execution_status END "
         "WHERE task_type = 'analysis'"
     )
-    op.execute("UPDATE user_vacancy_interactions SET status = 'skipped' WHERE status = 'rejected'")
+    op.execute(
+        "UPDATE user_vacancy_interactions SET status = 'skipped' WHERE status = 'rejected'"
+    )
     _recreate_enum(OLD_VALUES)

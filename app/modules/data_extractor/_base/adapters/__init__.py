@@ -10,11 +10,12 @@ class BaseDataExtractorAdapter:
     """Shared state and helpers for every source's extractors."""
 
     def __init__(
-            self, *,
-            logger: Logger,
-            log_labels: LogLabels,
-            source: VacancySource,
-            base_url: str
+        self,
+        *,
+        logger: Logger,
+        log_labels: LogLabels,
+        source: VacancySource,
+        base_url: str,
     ) -> None:
         # ------------------------------------------------------------------------ #
         self.base_url: str = base_url
@@ -31,9 +32,7 @@ class BaseDataExtractorAdapter:
 
     @staticmethod
     def should_skip_vacancy(
-            *,
-            posted_at: dt.datetime | None,
-            collected_until: dt.datetime | None
+        *, posted_at: dt.datetime | None, collected_until: dt.datetime | None
     ) -> bool:
         """True if the vacancy is not newer than the last collection run."""
         if collected_until is None or posted_at is None:

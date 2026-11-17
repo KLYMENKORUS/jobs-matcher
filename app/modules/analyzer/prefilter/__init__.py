@@ -16,19 +16,21 @@ class VacancyPrefilter:
     - none of the user's keywords is in the title / description: the sources'
       search is fuzzy and returns vacancies that only mention a related word.
     """
+
     MIN_TEXT_CHARS: t.Final[int] = 150
 
-    def check(self, *, vacancy: VacancySchema, keywords: Sequence[str]) -> str | None:
+    def check(
+        self, *, vacancy: VacancySchema, keywords: Sequence[str]
+    ) -> str | None:
         text: str = f"{vacancy.title or ''}\n{vacancy.description or ''}".strip()
 
         if len(text) < self.MIN_TEXT_CHARS:
             return "Префільтр: у вакансії майже немає опису."
 
-        if keywords and not any(self._contains(text, keyword) for keyword in keywords):
-            return (
-                "Префільтр: у вакансії немає жодного ключового слова "
-                f"({', '.join(keywords)})."
-            )
+        if keywords and not any(
+            self._contains(text, keyword) for keyword in keywords
+        ):
+            return f"Префільтр: у вакансії немає жодного ключового слова ({', '.join(keywords)})."
 
         return None
 

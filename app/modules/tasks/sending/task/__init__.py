@@ -24,26 +24,30 @@ class SendingTask(BaseProcessingTask[SendingExecutionStatus]):
     Each interaction is switched to SENT right after its message is delivered,
     so a restarted run never sends the same vacancy twice.
     """
+
     task_type = TaskType.SENDING
     execution_status_enum = SendingExecutionStatus
 
     def __init__(
-            self, *,
-            logger: Logger,
-            uow: UnitOfWork,
-            celery_details: dict[str, t.Any] | None = None
+        self,
+        *,
+        logger: Logger,
+        uow: UnitOfWork,
+        celery_details: dict[str, t.Any] | None = None,
     ) -> None:
         super().__init__(
-            logger=logger, log_labels=LogLabels.SENDING_TASK,
-            uow=uow, celery_details=celery_details
+            logger=logger,
+            log_labels=LogLabels.SENDING_TASK,
+            uow=uow,
+            celery_details=celery_details,
         )
 
         # [services]
         # ------------------------------------------------------------------------ #
         self.user_service: UserService = UserService(uow_factory=self.get_uow)
         # ------------------------------------------------------------------------ #
-        self.interaction_service: InteractionService = (
-            InteractionService(uow_factory=self.get_uow)
+        self.interaction_service: InteractionService = InteractionService(
+            uow_factory=self.get_uow
         )
         # ------------------------------------------------------------------------ #
 

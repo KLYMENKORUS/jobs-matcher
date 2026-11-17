@@ -24,8 +24,8 @@ class GeminiAIClient[T: BaseModel](BaseAIClient[T]):
             HTTPStatus.INTERNAL_SERVER_ERROR,
             HTTPStatus.BAD_GATEWAY,
             HTTPStatus.SERVICE_UNAVAILABLE,
-            HTTPStatus.GATEWAY_TIMEOUT
-        ]
+            HTTPStatus.GATEWAY_TIMEOUT,
+        ],
     )
 
     def __init__(self, *, output_type: type[T]) -> None:
@@ -33,28 +33,23 @@ class GeminiAIClient[T: BaseModel](BaseAIClient[T]):
 
         # [main]
         # ------------------------------------------------------------------------ #
-        self.provider: GoogleProvider = (
-            GoogleProvider(
-                api_key=settings.AI_API_KEY,
-                retry_options=self.retry_options
-            )
+        self.provider: GoogleProvider = GoogleProvider(
+            api_key=settings.AI_API_KEY, retry_options=self.retry_options
         )
 
         # [model settings]
         # ------------------------------------------------------------------------ #
-        self.model: GoogleModel = (
-            GoogleModel(
-                model_name=settings.AI_MODEL_NAME,
-                provider=self.provider,
-                settings=(
-                    GoogleModelSettings(
-                        google_thinking_config={
-                            "include_thoughts": False,
-                            "thinking_level": ThinkingLevel.MEDIUM
-                        }
-                    )
+        self.model: GoogleModel = GoogleModel(
+            model_name=settings.AI_MODEL_NAME,
+            provider=self.provider,
+            settings=(
+                GoogleModelSettings(
+                    google_thinking_config={
+                        "include_thoughts": False,
+                        "thinking_level": ThinkingLevel.MEDIUM,
+                    }
                 )
-            )
+            ),
         )
         # ------------------------------------------------------------------------ #
 
@@ -63,9 +58,11 @@ class GeminiAIClient[T: BaseModel](BaseAIClient[T]):
             model=self.model,
             output_type=self.output_type,
             instructions=system_prompt,
-            retries=2
+            retries=2,
         )
 
     @BaseAIClient.run_failed_catch_wrapper
-    async def run(self, *, agent: Agent[None, T], request: AIRequest) -> AgentRunResult[T]:
+    async def run(
+        self, *, agent: Agent[None, T], request: AIRequest
+    ) -> AgentRunResult[T]:
         return await agent.run(user_prompt=request.user_prompt)

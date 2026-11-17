@@ -22,7 +22,9 @@ def upgrade() -> None:
     """Upgrade schema."""
     # not a rename: cv_text held the CV itself, cv_file holds a path to it,
     # so the stored texts are dropped and users have to upload a file
-    op.add_column("users", sa.Column("cv_file", sa.String(length=512), nullable=True))
+    op.add_column(
+        "users", sa.Column("cv_file", sa.String(length=512), nullable=True)
+    )
     op.drop_column("users", "cv_text")
 
 

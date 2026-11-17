@@ -9,25 +9,24 @@ from ...schemas.thejob.search import JobSearch
 
 
 class JobApiResponseData:
-
     # [search]
     ################################################################################
     class Search:
-
         @classmethod
         @source_api_wrapper_error(source="thejob", api="job-api", path="search")
         async def get(cls, *, data: t.Any) -> JobSearch:
             return JobSearch(**data)
+
     ################################################################################
 
     # [details]
     ################################################################################
     class JobDetails:
-
         @classmethod
         @source_api_wrapper_error(source="thejob", api="job-api", path="job-details")
         async def get(cls, *, data: t.Any) -> Job:
             return Job(**data)
+
     ################################################################################
 
     def __init__(self) -> None:
@@ -40,7 +39,6 @@ class JobApiResponseData:
 
 
 class TheJobApiResponseData:
-
     def __init__(self) -> None:
         # ------------------------------------------------------------------------ #
         self.job_api: JobApiResponseData = JobApiResponseData()

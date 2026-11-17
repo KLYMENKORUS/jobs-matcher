@@ -10,10 +10,8 @@ from app.shared.utils.logger import Logger
 
 
 class AsyncSessionPool:
-
     ################################################################################
     class _AcquireSessionContextManager(AbstractAsyncContextManager[ClientSession]):
-
         def __init__(self, *, pool: AsyncSessionPool) -> None:
             # ------------------------------------------------------------------------ #
             self._pool = pool
@@ -21,7 +19,8 @@ class AsyncSessionPool:
             self._discard: bool = False
             # ------------------------------------------------------------------------ #
             self._exceptions: tuple[type[Exception], ...] = (
-                ClientConnectionError, ClientResponseError
+                ClientConnectionError,
+                ClientResponseError,
             )
             # ------------------------------------------------------------------------ #
 
@@ -32,10 +31,10 @@ class AsyncSessionPool:
             return self._session
 
         async def __aexit__(
-                self,
-                exc_type: type[BaseException] | None,
-                exc_val: BaseException | None,
-                exc_tb: types.TracebackType | None
+            self,
+            exc_type: type[BaseException] | None,
+            exc_val: BaseException | None,
+            exc_tb: types.TracebackType | None,
         ) -> None:
             if exc_type and issubclass(exc_type, self._exceptions):
                 self._discard = True
@@ -44,6 +43,7 @@ class AsyncSessionPool:
                 )
                 return
             return await self._pool._return_valid_session(session=self._session)
+
     ################################################################################
 
     def __init__(self, *, logger: Logger, log_labels: str, size: int = 1) -> None:
@@ -94,15 +94,15 @@ class AsyncSessionPool:
         await self._close_session()
 
     async def _discard_invalid_session(
-            self, *, session: ClientSession, discard: bool = False
+        self, *, session: ClientSession, discard: bool = False
     ) -> None:
         self.logger.info(
-            f"[{self.log_labels}] start discard invalid session... "
-            f"({discard=}, {session.closed=})"
+            f"[{self.log_labels}] start discard invalid session... ({discard=}, {session.closed=})"
         )
         if discard or session.closed:
             self.logger.warning(
-                f"[{self.log_labels}] discarding session ({session.closed=})")
+                f"[{self.log_labels}] discarding session ({session.closed=})"
+            )
             if not session.closed:
                 await session.close()
                 self.logger.warning(

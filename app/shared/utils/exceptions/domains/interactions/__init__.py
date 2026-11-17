@@ -1,12 +1,9 @@
-__all__ = (
-    "InteractionNotFoundError",
-)
+__all__ = ("InteractionNotFoundError",)
 
 from ..._base import BaseErrorException
 
 
 class InteractionNotFoundError(BaseErrorException):
-
     def __init__(self, *, interaction_id: int) -> None:
         # ------------------------------------------------------------------------ #
         self.interaction_id: int = interaction_id

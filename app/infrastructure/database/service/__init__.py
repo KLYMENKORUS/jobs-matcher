@@ -8,9 +8,15 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from app.infrastructure.database.client import db_client
 
 if t.TYPE_CHECKING:
-    from app.modules.domains.interactions.repository import InteractionRepository
-    from app.modules.domains.tasks.execution.repository import TaskRunRepository
-    from app.modules.domains.user_settings.repository import UserSettingsRepository
+    from app.modules.domains.interactions.repository import (
+        InteractionRepository,
+    )
+    from app.modules.domains.tasks.execution.repository import (
+        TaskRunRepository,
+    )
+    from app.modules.domains.user_settings.repository import (
+        UserSettingsRepository,
+    )
     from app.modules.domains.users.repository import UserRepository
     from app.modules.domains.vacancies.repository import VacancyRepository
 
@@ -33,13 +39,12 @@ class UnitOfWork:
     ################################################################################
 
     def __init__(
-            self,
-            *,
-            session_maker: async_sessionmaker[AsyncSession] | None = None
+        self, *, session_maker: async_sessionmaker[AsyncSession] | None = None
     ) -> None:
         # ------------------------------------------------------------------------ #
-        self._session_maker: async_sessionmaker[AsyncSession] = \
+        self._session_maker: async_sessionmaker[AsyncSession] = (
             session_maker or db_client.session_maker
+        )
         # ------------------------------------------------------------------------ #
         self._session: AsyncSession | None = None
         # ------------------------------------------------------------------------ #
@@ -52,10 +57,15 @@ class UnitOfWork:
         if self._session is not None:
             return self
 
-
-        from app.modules.domains.interactions.repository import InteractionRepository
-        from app.modules.domains.tasks.execution.repository import TaskRunRepository
-        from app.modules.domains.user_settings.repository import UserSettingsRepository
+        from app.modules.domains.interactions.repository import (
+            InteractionRepository,
+        )
+        from app.modules.domains.tasks.execution.repository import (
+            TaskRunRepository,
+        )
+        from app.modules.domains.user_settings.repository import (
+            UserSettingsRepository,
+        )
         from app.modules.domains.users.repository import UserRepository
         from app.modules.domains.vacancies.repository import VacancyRepository
 
@@ -76,10 +86,10 @@ class UnitOfWork:
         return self
 
     async def __aexit__(
-            self,
-            exc_type: type[BaseException] | None,
-            exc_value: BaseException | None,
-            traceback: types.TracebackType | None
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: types.TracebackType | None,
     ) -> None:
         # ------------------------------------------------------------------------ #
         self._depth -= 1
@@ -95,7 +105,9 @@ class UnitOfWork:
     @property
     def session(self) -> AsyncSession:
         if self._session is None:
-            raise RuntimeError("UnitOfWork is not started, use `async with UnitOfWork()`")
+            raise RuntimeError(
+                "UnitOfWork is not started, use `async with UnitOfWork()`"
+            )
         return self._session
 
     async def commit(self) -> None:

@@ -9,7 +9,6 @@ if t.TYPE_CHECKING:
 
 
 class AnalysisIterableTaskState(BaseIterableTaskState):
-
     def __init__(self, *, task: AnalysisTask) -> None:
         from .analyze_vacancies import AnalysisAnalyzeVacanciesState
         from .prefilter_vacancies import AnalysisPrefilterVacanciesState

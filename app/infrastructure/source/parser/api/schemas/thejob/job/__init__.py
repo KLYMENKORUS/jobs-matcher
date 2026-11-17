@@ -68,7 +68,10 @@ class Job(_TheJobModel):
             if not html.strip():
                 return ""
             text: str = fromstring(html).text_content()
-            return "\n".join(line.strip() for line in text.splitlines() if line.strip())
+            return "\n".join(
+                line.strip() for line in text.splitlines() if line.strip()
+            )
+
         # ------------------------------------------------------------------------ #
 
         # ------------------------------------------------------------------------ #
@@ -83,7 +86,9 @@ class Job(_TheJobModel):
 
         return {
             **values,
-            "description": _html_to_text(html=description) if isinstance(description, str) else "",
+            "description": _html_to_text(html=description)
+            if isinstance(description, str)
+            else "",
         }
 
     @property

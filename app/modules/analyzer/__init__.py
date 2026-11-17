@@ -36,7 +36,9 @@ class VacancyMatchAnalyzer:
     # comes already cleaned and cut by the task (see TextCleaner.clean_cv)
     MAX_DESCRIPTION_CHARS: t.Final[int] = 4000
 
-    def __init__(self, *, ai_client: BaseAIClient[VacancyMatchSchema] | None = None) -> None:
+    def __init__(
+        self, *, ai_client: BaseAIClient[VacancyMatchSchema] | None = None
+    ) -> None:
         # ------------------------------------------------------------------------ #
         self._ai_client: BaseAIClient[VacancyMatchSchema] = (
             ai_client or GeminiAIClient(output_type=VacancyMatchSchema)
@@ -47,13 +49,17 @@ class VacancyMatchAnalyzer:
         )
         # ------------------------------------------------------------------------ #
 
-    async def analyze(self, *, cv_text: str, vacancy: VacancySchema) -> VacancyMatchSchema:
+    async def analyze(
+        self, *, cv_text: str, vacancy: VacancySchema
+    ) -> VacancyMatchSchema:
         """`cv_text` is expected to be cleaned already: it is sent as is."""
         result = await self._ai_client.run(
             agent=self._agent,
             request=AIRequest(
                 system_prompt=self.SYSTEM_PROMPT,
-                user_prompt=self._build_user_prompt(cv_text=cv_text, vacancy=vacancy),
+                user_prompt=self._build_user_prompt(
+                    cv_text=cv_text, vacancy=vacancy
+                ),
             ),
         )
         return result.output

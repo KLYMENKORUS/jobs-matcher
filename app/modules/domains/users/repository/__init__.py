@@ -17,10 +17,7 @@ class UserRepository(BaseCRUD[User]):
         return await self.session.scalar(query)
 
     async def create_with_settings(
-            self,
-            *,
-            telegram_id: int,
-            keywords: list[str] | None = None
+        self, *, telegram_id: int, keywords: list[str] | None = None
     ) -> User:
         user = User(
             telegram_id=telegram_id,

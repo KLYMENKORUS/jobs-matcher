@@ -9,7 +9,6 @@ if t.TYPE_CHECKING:
 
 
 class SendingIterableTaskState(BaseIterableTaskState):
-
     def __init__(self, *, task: SendingTask) -> None:
         from .send_matches import SendingSendMatchesState
 

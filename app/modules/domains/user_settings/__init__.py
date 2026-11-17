@@ -1,7 +1,7 @@
 __all__ = (
     "UserSettingsSchema",
     "UserSettingsUpdateSchema",
-    "UserSettingsService"
+    "UserSettingsService",
 )
 
 from .schemas import UserSettingsSchema, UserSettingsUpdateSchema

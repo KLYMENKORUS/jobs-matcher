@@ -20,12 +20,13 @@ class AsyncBrowserClient(AsyncBaseContextClient):
     _WAIT_TIMEOUT: t.Final[float] = 15 * 1000
 
     def __init__(
-            self, *,
-            url: str,
-            logger: Logger,
-            extra_http_headers: dict[str, t.Any],
-            proxy_server: str | None = None,
-            use_headless_mode: bool = True
+        self,
+        *,
+        url: str,
+        logger: Logger,
+        extra_http_headers: dict[str, t.Any],
+        proxy_server: str | None = None,
+        use_headless_mode: bool = True,
     ) -> None:
         super().__init__(logger=logger, proxy_server=proxy_server)
 
@@ -37,26 +38,37 @@ class AsyncBrowserClient(AsyncBaseContextClient):
 
         # [browser options]
         # ------------------------------------------------------------------------ #
-        self._browser_manager: AsyncBrowserManager = \
-            AsyncBrowserManager(use_headless_mode=use_headless_mode)
+        self._browser_manager: AsyncBrowserManager = AsyncBrowserManager(
+            use_headless_mode=use_headless_mode
+        )
         # ------------------------------------------------------------------------ #
-        self._browser_context_options: BrowserContextOptions = \
+        self._browser_context_options: BrowserContextOptions = (
             BrowserContextOptions()
+        )
         # ------------------------------------------------------------------------ #
 
     @delimit_wrapper(
-        section="playwright-client", obj="instance-client",
-        detail="data extraction", is_subdelimit=True
+        section="playwright-client",
+        obj="instance-client",
+        detail="data extraction",
+        is_subdelimit=True,
     )
     async def __aenter__(self) -> AsyncBrowserClient:
-        self.logger.info(f"[{self.log_labels}] open connection for playwright client...")
+        self.logger.info(
+            f"[{self.log_labels}] open connection for playwright client..."
+        )
 
         # ------------------------------------------------------------------------ #
         def _extract_query_params() -> dict[str, t.Any]:
             return {
-                param_key: ",".join(param_value[0].split(",") if param_value else param_value)
-                for param_key, param_value in parse_qs(urlparse(self.url).query).items()
+                param_key: ",".join(
+                    param_value[0].split(",") if param_value else param_value
+                )
+                for param_key, param_value in parse_qs(
+                    urlparse(self.url).query
+                ).items()
             }
+
         # ------------------------------------------------------------------------ #
 
         try:
@@ -75,10 +87,10 @@ class AsyncBrowserClient(AsyncBaseContextClient):
             raise
 
     async def __aexit__(
-            self,
-            exc_type: type[BaseException] | None,
-            exc_val: BaseException | None,
-            exc_tb: types.TracebackType | None
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: types.TracebackType | None,
     ) -> None:
         await self.shutdown_browser_session()
 
@@ -86,24 +98,24 @@ class AsyncBrowserClient(AsyncBaseContextClient):
             self.logger.error(f"[{self.log_labels}] {traceback.format_exc(limit=0)}")
             return
 
-        self.logger.info(f"[{self.log_labels}] ...close connection for playwright client")
+        self.logger.info(
+            f"[{self.log_labels}] ...close connection for playwright client"
+        )
         return
 
     async def launch_browser_session(self) -> None:
         # ------------------------------------------------------------------------ #
         browser: Browser = await self._browser_manager.start()
 
-        context: BrowserContext = (
-            await browser.new_context(
-                proxy=await self.get_proxy_settings(),
-                **self._browser_context_options.model_dump(
-                    exclude={"extra_http_headers"}
-                ),
-                extra_http_headers={
-                    **self.extra_http_headers,
-                    **self._browser_context_options.extra_http_headers
-                }
-            )
+        context: BrowserContext = await browser.new_context(
+            proxy=await self.get_proxy_settings(),
+            **self._browser_context_options.model_dump(
+                exclude={"extra_http_headers"}
+            ),
+            extra_http_headers={
+                **self.extra_http_headers,
+                **self._browser_context_options.extra_http_headers,
+            },
         )
         await self._browser_manager.stealth.apply_stealth_async(
             page_or_context=context

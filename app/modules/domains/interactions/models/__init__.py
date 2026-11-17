@@ -23,7 +23,9 @@ class UserVacancyInteraction(Base):
     ################################################################################
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
-    vacancy_id: Mapped[int] = mapped_column(ForeignKey("vacancies.id", ondelete="CASCADE"))
+    vacancy_id: Mapped[int] = mapped_column(
+        ForeignKey("vacancies.id", ondelete="CASCADE")
+    )
 
     match_score: Mapped[float | None] = mapped_column(Float, nullable=True)
     match_reasoning: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -41,5 +43,7 @@ class UserVacancyInteraction(Base):
     # [relationships]
     ################################################################################
     user: Mapped[User] = relationship(back_populates="interactions")
-    vacancy: Mapped[Vacancy] = relationship(back_populates="interactions", lazy="selectin")
+    vacancy: Mapped[Vacancy] = relationship(
+        back_populates="interactions", lazy="selectin"
+    )
     ################################################################################

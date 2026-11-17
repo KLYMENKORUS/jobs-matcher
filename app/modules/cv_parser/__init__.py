@@ -21,6 +21,7 @@ class CVParser:
     The libraries are synchronous, so parsing runs in a thread to keep the
     event loop free.
     """
+
     SUPPORTED_EXTENSIONS: t.Final[tuple[str, ...]] = (".pdf", ".docx", ".txt")
 
     @classmethod

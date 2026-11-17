@@ -28,6 +28,7 @@ class TaskRunRepository(BaseCRUD[TaskRun]):
             .limit(1)
         )
         return await self.session.scalar(query)
+
     # ------------------------------------------------------------------------ #
 
     # [write]
@@ -43,17 +44,17 @@ class TaskRunRepository(BaseCRUD[TaskRun]):
             update(TaskRun)
             .where(TaskRun.id == id)
             .values(
-                details=TaskRun.details.op(
-                    "||", return_type=JSONB
-                )(literal(details, JSONB))
+                details=TaskRun.details.op("||", return_type=JSONB)(
+                    literal(details, JSONB)
+                )
             )
         )
 
     async def push_timeframe(self, *, id: int) -> None:
         timeframe = ExecutionTimeframe(started_at=dt.datetime.now(dt.UTC))
         await self._append_json(
-            id=id, column="timeframes", item=timeframe.model_dump(mode="json"))
-
+            id=id, column="timeframes", item=timeframe.model_dump(mode="json")
+        )
 
     async def finish_timeframe(self, *, id: int) -> None:
         """Close the last open timeframe (the attempt that is ending)."""
@@ -71,28 +72,36 @@ class TaskRunRepository(BaseCRUD[TaskRun]):
             await self.session.flush()
 
     async def push_exception(
-            self, *,
-            id: int,
-            full_traceback: str,
-            short_traceback: str | None = None
+        self,
+        *,
+        id: int,
+        full_traceback: str,
+        short_traceback: str | None = None,
     ) -> None:
         exception = ExecutionException(
             exception_time=dt.datetime.now(dt.UTC),
             short_traceback=short_traceback,
             full_traceback=full_traceback,
         )
-        await self._append_json(id=id, column="exceptions", item=exception.model_dump(mode="json"))
+        await self._append_json(
+            id=id, column="exceptions", item=exception.model_dump(mode="json")
+        )
 
     async def complete(self, *, id: int) -> None:
         await self.session.execute(
             update(TaskRun).where(TaskRun.id == id).values(completed_at=func.now())
         )
 
-    async def _append_json(self, *, id: int, column: str, item: dict[str, t.Any]) -> None:
+    async def _append_json(
+        self, *, id: int, column: str, item: dict[str, t.Any]
+    ) -> None:
         target = getattr(TaskRun, column)
         await self.session.execute(
             update(TaskRun)
             .where(TaskRun.id == id)
-            .values({column: target.op("||", return_type=JSONB)(literal([item], JSONB))})
+            .values(
+                {column: target.op("||", return_type=JSONB)(literal([item], JSONB))}
+            )
         )
+
     # ------------------------------------------------------------------------ #

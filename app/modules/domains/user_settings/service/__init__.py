@@ -14,16 +14,19 @@ from app.shared.utils.exceptions.domains.users import UserNotFoundError
 
 class UserSettingsService:
     def __init__(
-            self, *,
-            uow_factory: t.Callable[[], UnitOfWork] = UnitOfWork
+        self, *, uow_factory: t.Callable[[], UnitOfWork] = UnitOfWork
     ) -> None:
         # ------------------------------------------------------------------------ #
         self._uow_factory: t.Callable[[], UnitOfWork] = uow_factory
         # ------------------------------------------------------------------------ #
 
     @staticmethod
-    async def _get_settings_or_raise(uow: UnitOfWork, *, telegram_id: int) -> UserSettings:
-        user: User | None = await uow.users.get_by_telegram_id(telegram_id=telegram_id)
+    async def _get_settings_or_raise(
+        uow: UnitOfWork, *, telegram_id: int
+    ) -> UserSettings:
+        user: User | None = await uow.users.get_by_telegram_id(
+            telegram_id=telegram_id
+        )
         if user is None:
             raise UserNotFoundError(telegram_id=telegram_id)
         return user.settings
@@ -40,15 +43,13 @@ class UserSettingsService:
     async def get_unique_active_keywords(self) -> list[str]:
         async with self._uow_factory() as uow:
             return await uow.user_settings.get_unique_active_keywords()
+
     ################################################################################
 
     # [write]
     ################################################################################
     async def update(
-            self,
-            *,
-            telegram_id: int,
-            data: UserSettingsUpdateSchema
+        self, *, telegram_id: int, data: UserSettingsUpdateSchema
     ) -> UserSettingsSchema:
         async with self._uow_factory() as uow:
             settings: UserSettings = await self._get_settings_or_raise(
@@ -56,10 +57,13 @@ class UserSettingsService:
             )
 
             # ------------------------------------------------------------------------ #
-            for key, value in data.model_dump(exclude_unset=True, exclude_none=True).items():
+            for key, value in data.model_dump(
+                exclude_unset=True, exclude_none=True
+            ).items():
                 setattr(settings, key, value)
             await uow.commit()
             # ------------------------------------------------------------------------ #
 
             return UserSettingsSchema.model_validate(settings)
+
     ################################################################################

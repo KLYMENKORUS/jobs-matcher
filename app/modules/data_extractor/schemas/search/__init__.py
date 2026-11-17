@@ -22,6 +22,7 @@ class VacancySearchItem(BaseModel):
     leave `main` empty, the details are collected later by `vacancy.extract_main`.
     Sources whose search already returns full data (thejob) fill `main` too.
     """
+
     url: HttpUrlStr
     source: VacancySource
     posted_at: dt.datetime | None = Field(default=None)
@@ -31,7 +32,9 @@ class VacancySearchItem(BaseModel):
         if self.main is not None:
             return self.main.to_create_schema()
 
-        return VacancyCreateSchema(url=self.url, source=self.source, posted_at=self.posted_at)
+        return VacancyCreateSchema(
+            url=self.url, source=self.source, posted_at=self.posted_at
+        )
 
 
 class VacanciesSearchResults(BaseModel):

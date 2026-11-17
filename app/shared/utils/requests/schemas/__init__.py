@@ -12,15 +12,13 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class ScraperRequestParams(BaseModel):
-    model_config = ConfigDict(
-        arbitrary_types_allowed=True,
-        populate_by_name=True
-    )
+    model_config = ConfigDict(arbitrary_types_allowed=True, populate_by_name=True)
 
     ################################################################################
     class ResponseFormat(StrEnum):
         JSON = "json"
         HTML = "html"
+
     ################################################################################
 
     url: str
@@ -37,9 +35,7 @@ class ScraperRequestParams(BaseModel):
 
 
 class ScraperResponse(BaseModel):
-    model_config = ConfigDict(
-        arbitrary_types_allowed=True
-    )
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     json_data: t.Any | None = Field(default=None)
     text: str | None = Field(default=None)

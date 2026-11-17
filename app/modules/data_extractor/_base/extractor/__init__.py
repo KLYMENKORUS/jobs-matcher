@@ -15,24 +15,25 @@ class BaseDataExtractor:
     # [search extractor]
     ################################################################################
     class Search(abc.ABC):
-
         @abc.abstractmethod
         async def extract_vacancies(
-                self, *,
-                query: str,
-                max_pages: int | None = None,
-                collected_until: dt.datetime | None = None,
+            self,
+            *,
+            query: str,
+            max_pages: int | None = None,
+            collected_until: dt.datetime | None = None,
         ) -> VacanciesSearchResults:
             pass
+
     ################################################################################
 
     # [vacancy extractor]
     ################################################################################
     class Vacancy(abc.ABC):
-
         @abc.abstractmethod
         async def extract_main(self, *, url: str) -> VacancyMain:
             pass
+
     ################################################################################
 
     search = RequiredTypedField(expected_type=Search)

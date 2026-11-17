@@ -12,11 +12,12 @@ type _LoggerDelimit = t.Callable[[str], None]
 
 class _LoggerDelimitWrapper:
     def __init__(
-            self, *,
-            section: str,
-            obj: str,
-            detail: str,
-            is_subdelimit: bool | None = None
+        self,
+        *,
+        section: str,
+        obj: str,
+        detail: str,
+        is_subdelimit: bool | None = None,
     ) -> None:
         # ------------------------------------------------------------------------ #
         self._section: str = section
@@ -43,19 +44,22 @@ class _LoggerDelimitWrapper:
 
     @t.overload
     def __call__[**P, Y](
-            self, function: t.Callable[P, t.AsyncIterator[Y]]
+        self, function: t.Callable[P, t.AsyncIterator[Y]]
     ) -> t.Callable[P, t.AsyncIterator[Y]]: ...
 
     @t.overload
     def __call__[**P, R](
-            self, function: t.Callable[P, t.Coroutine[t.Any, t.Any, R]]
+        self, function: t.Callable[P, t.Coroutine[t.Any, t.Any, R]]
     ) -> t.Callable[P, t.Coroutine[t.Any, t.Any, R]]: ...
 
     def __call__(self, function: t.Callable[..., t.Any]) -> t.Callable[..., t.Any]:
         # ------------------------------------------------------------------------ #
         if inspect.isasyncgenfunction(function):
+
             @functools.wraps(function)
-            async def gen_wrapper(*args: t.Any, **kwargs: t.Any) -> t.AsyncIterator[t.Any]:
+            async def gen_wrapper(
+                *args: t.Any, **kwargs: t.Any
+            ) -> t.AsyncIterator[t.Any]:
                 logger, logger_delimit = self._get_logger(*args)
                 logger_delimit(ColoredFormatter.highlight(f"start {self._log}"))
                 logger.subinfo(f"start {self._log}...")

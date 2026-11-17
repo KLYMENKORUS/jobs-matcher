@@ -13,15 +13,14 @@ from .._base import BaseErrorException
 
 
 class _BaseSourceErrorException(BaseErrorException, abc.ABC):
-
     def __init__(self) -> None:
         # ------------------------------------------------------------------------ #
         self.log_labels: LogLabels = LogLabels.SOURCE_API
         # ------------------------------------------------------------------------ #
         super().__init__()
 
-class SourceDataExtractionError(_BaseSourceErrorException):
 
+class SourceDataExtractionError(_BaseSourceErrorException):
     def __init__(self, *, source: str, datatype: str) -> None:
         # ------------------------------------------------------------------------ #
         self.source, self.datatype = source, datatype
@@ -29,10 +28,7 @@ class SourceDataExtractionError(_BaseSourceErrorException):
         super().__init__()
 
     def __str__(self) -> str:
-        return (
-            f"[{self.log_labels}] {self.source} "
-            f"data extraction error ({self.datatype})"
-        )
+        return f"[{self.log_labels}] {self.source} data extraction error ({self.datatype})"
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({self.source}, {self.datatype})"
@@ -73,7 +69,9 @@ class NotAVacancyUrlError(_BaseSourceErrorException):
         super().__init__()
 
     def __str__(self) -> str:
-        return f"[{self.log_labels}] {self.source} url is not a vacancy url: {self.url}"
+        return (
+            f"[{self.log_labels}] {self.source} url is not a vacancy url: {self.url}"
+        )
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({self.url!r}, {self.source!r})"
@@ -89,7 +87,9 @@ class SourceDataExtractorNotFoundError(_BaseSourceErrorException):
         super().__init__()
 
     def __str__(self) -> str:
-        return f"[{self.log_labels}] data extractor not found for source: {self.source}"
+        return (
+            f"[{self.log_labels}] data extractor not found for source: {self.source}"
+        )
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({self.source!r})"

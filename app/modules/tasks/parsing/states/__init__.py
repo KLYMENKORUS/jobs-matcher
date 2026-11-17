@@ -9,7 +9,6 @@ if t.TYPE_CHECKING:
 
 
 class ParsingIterableTaskState(BaseIterableTaskState):
-
     def __init__(self, *, task: ParsingTask) -> None:
         from .collect_vacancy_details import ParsingCollectVacancyDetailsState
         from .collect_vacancy_urls import ParsingCollectVacancyUrlsState

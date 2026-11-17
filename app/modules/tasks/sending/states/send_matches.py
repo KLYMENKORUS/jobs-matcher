@@ -5,12 +5,14 @@ from app.modules.domains.interactions import InteractionWithVacancySchema
 from app.modules.domains.users import UserSchema
 from app.shared.settings import settings
 from app.shared.utils.enums.domains.interactions import InteractionStatus
-from app.shared.utils.enums.tasks import SendingExecutionStatus as ExecutionStatus
+from app.shared.utils.enums.tasks import (
+    SendingExecutionStatus as ExecutionStatus,
+)
 from app.shared.utils.logger.decorators import delimit_wrapper
 
 from ..._base.states import BaseTaskState
-from ..task import SendingTask
 from ..callbacks import InteractionCallback
+from ..task import SendingTask
 
 
 class SendingSendMatchesState(BaseTaskState):
@@ -24,6 +26,7 @@ class SendingSendMatchesState(BaseTaskState):
     The message carries "applied / skip" buttons (InteractionCallback); their
     presses come to the bot, which saves them via InteractionService.react.
     """
+
     task: SendingTask
     execution_status = ExecutionStatus.SEND_MATCHES
 
@@ -31,8 +34,10 @@ class SendingSendMatchesState(BaseTaskState):
     MAX_MATCHES_PER_USER: int = 20
 
     @delimit_wrapper(
-        section="sending", obj="send-matches",
-        detail="send matches to telegram", is_subdelimit=True
+        section="sending",
+        obj="send-matches",
+        detail="send matches to telegram",
+        is_subdelimit=True,
     )
     async def run(self) -> None:
         users: list[UserSchema] = await self.task.user_service.get_active_users()
@@ -46,17 +51,21 @@ class SendingSendMatchesState(BaseTaskState):
             failed += user_failed
 
         await self.task.merge_details(sent=sent, failed=failed)
-        self.task.logger.info(f"[{self.task.log_labels}] sent {sent}, failed {failed}")
+        self.task.logger.info(
+            f"[{self.task.log_labels}] sent {sent}, failed {failed}"
+        )
 
     async def _send_user_matches(self, *, user: UserSchema) -> tuple[int, int]:
         # ------------------------------------------------------------------------ #
         min_score: float = (
             user.settings.min_score if user.settings else settings.DEFAULT_MIN_SCORE
         )
-        matches: list[InteractionWithVacancySchema] = (
-            await self.task.interaction_service.get_matches_to_send(
-                user_id=user.id, min_score=min_score, limit=self.MAX_MATCHES_PER_USER
-            )
+        matches: list[
+            InteractionWithVacancySchema
+        ] = await self.task.interaction_service.get_matches_to_send(
+            user_id=user.id,
+            min_score=min_score,
+            limit=self.MAX_MATCHES_PER_USER,
         )
         if not matches:
             return 0, 0
@@ -93,7 +102,9 @@ class SendingSendMatchesState(BaseTaskState):
     @staticmethod
     def _format_message(*, match: InteractionWithVacancySchema) -> str:
         vacancy = match.vacancy
-        company: str = f" · {html.escape(vacancy.company)}" if vacancy.company else ""
+        company: str = (
+            f" · {html.escape(vacancy.company)}" if vacancy.company else ""
+        )
 
         return "\n".join(
             [

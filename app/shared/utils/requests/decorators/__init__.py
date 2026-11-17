@@ -53,10 +53,10 @@ class _RetryOnConnectionError[T](BaseAttributeAccessor[T]):
     )
 
     def __init__(
-            self,
-            function: t.Callable[..., t.Awaitable[T]],
-            *,
-            config: HTTPRetryConfig | None = None
+        self,
+        function: t.Callable[..., t.Awaitable[T]],
+        *,
+        config: HTTPRetryConfig | None = None,
     ) -> None:
         super().__init__(function)
 
@@ -66,10 +66,13 @@ class _RetryOnConnectionError[T](BaseAttributeAccessor[T]):
 
     @staticmethod
     def with_config[R](
-            config: HTTPRetryConfig,
+        config: HTTPRetryConfig,
     ) -> t.Callable[[t.Callable[..., t.Awaitable[R]]], _RetryOnConnectionError[R]]:
-        def decorator(function: t.Callable[..., t.Awaitable[R]]) -> _RetryOnConnectionError[R]:
+        def decorator(
+            function: t.Callable[..., t.Awaitable[R]],
+        ) -> _RetryOnConnectionError[R]:
             return _RetryOnConnectionError(function, config=config)
+
         return decorator
 
     def __get__(self, instance: t.Any, owner: type[t.Any] | None = None) -> t.Self:
@@ -91,6 +94,7 @@ class _RetryOnConnectionError[T](BaseAttributeAccessor[T]):
     @property
     def _log_labels(self) -> str:
         return str(getattr(self.instance, "log_labels", "request"))
+
     ################################################################################
 
     # [tenacity callbacks]
@@ -105,7 +109,7 @@ class _RetryOnConnectionError[T](BaseAttributeAccessor[T]):
         # exponential backoff capped at MAX_DELAY, plus jitter proportional to the delay
         attempt: int = retry_state.attempt_number - 1
         delay: float = min(
-            self._retry_config.BASE_DELAY * (2 ** attempt) * self._retry_config.FACTOR,
+            self._retry_config.BASE_DELAY * (2**attempt) * self._retry_config.FACTOR,
             self._retry_config.MAX_DELAY,
         )
         return delay + random.uniform(0, delay * self._retry_config.JITTER_RATIO)
@@ -120,6 +124,7 @@ class _RetryOnConnectionError[T](BaseAttributeAccessor[T]):
             f"[{self._log_labels}] request failed attempt "
             f"{retry_state.attempt_number}/{self._retry_config.CONNECTION_ERR_RETRIES}"
         )
+
     ################################################################################
 
     def _build_retrying(self) -> AsyncRetrying:
@@ -157,7 +162,7 @@ class _SourceApiWrapperValidation:
         # ------------------------------------------------------------------------ #
 
     def __call__[**P, R](
-            self, function: t.Callable[P, t.Coroutine[t.Any, t.Any, R]]
+        self, function: t.Callable[P, t.Coroutine[t.Any, t.Any, R]]
     ) -> t.Callable[P, t.Coroutine[t.Any, t.Any, R]]:
 
         @functools.wraps(function)

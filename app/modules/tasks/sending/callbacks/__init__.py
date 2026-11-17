@@ -13,6 +13,7 @@ class InteractionCallback(BaseModel):
     carry it as `callback_data` ("ia:<interaction id>:<status>", telegram
     allows 64 bytes), the bot unpacks it and calls InteractionService.react.
     """
+
     PREFIX: t.ClassVar[str] = "ia"
     REACTIONS: t.ClassVar[dict[InteractionStatus, str]] = {
         InteractionStatus.APPLIED: "✅ Подався",
@@ -44,11 +45,15 @@ class InteractionCallback(BaseModel):
     def keyboard(cls, *, interaction_id: int) -> dict[str, t.Any]:
         """`reply_markup` for the vacancy message."""
         return {
-            "inline_keyboard": [[
-                {
-                    "text": text,
-                    "callback_data": cls(interaction_id=interaction_id, status=status).pack(),
-                }
-                for status, text in cls.REACTIONS.items()
-            ]]
+            "inline_keyboard": [
+                [
+                    {
+                        "text": text,
+                        "callback_data": cls(
+                            interaction_id=interaction_id, status=status
+                        ).pack(),
+                    }
+                    for status, text in cls.REACTIONS.items()
+                ]
+            ]
         }

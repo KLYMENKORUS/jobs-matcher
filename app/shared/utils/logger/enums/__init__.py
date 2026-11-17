@@ -1,9 +1,4 @@
-__all__ = (
-    "LogLevel",
-    "TextColor",
-    "LogLabels",
-    "Style"
-)
+__all__ = ("LogLevel", "TextColor", "LogLabels", "Style")
 
 
 import logging

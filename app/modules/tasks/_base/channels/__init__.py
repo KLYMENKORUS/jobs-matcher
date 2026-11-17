@@ -20,6 +20,7 @@ class BaseTelegramChannel(abc.ABC):
     Telegram channel of one background task: start / end / failed messages of
     its runs. A channel without `channel_id` is disabled and sends nothing.
     """
+
     title: t.ClassVar[str]
     notify_progress: t.ClassVar[bool] = True
 
@@ -30,7 +31,8 @@ class BaseTelegramChannel(abc.ABC):
         # ------------------------------------------------------------------------ #
         self.notifier: TelegramApiNotifierClient | None = (
             TelegramApiNotifierClient(logger=logger, channel_id=channel_id)
-            if channel_id else None
+            if channel_id
+            else None
         )
         # ------------------------------------------------------------------------ #
         self.templates: TemplateRenderer = TemplateRenderer(
@@ -54,10 +56,11 @@ class BaseTelegramChannel(abc.ABC):
     # [messages]
     ################################################################################
     async def send_start_message(
-            self, *,
-            task_run: TaskRunSchema,
-            execution_status: IntEnum,
-            celery_details: dict[str, t.Any] | None = None
+        self,
+        *,
+        task_run: TaskRunSchema,
+        execution_status: IntEnum,
+        celery_details: dict[str, t.Any] | None = None,
     ) -> None:
         if not self.notify_progress:
             return
@@ -91,10 +94,11 @@ class BaseTelegramChannel(abc.ABC):
         )
 
     async def send_end_message(
-            self, *,
-            task_run: TaskRunSchema,
-            duration: float,
-            celery_details: dict[str, t.Any] | None = None
+        self,
+        *,
+        task_run: TaskRunSchema,
+        duration: float,
+        celery_details: dict[str, t.Any] | None = None,
     ) -> None:
         if not self.notify_progress:
             return
@@ -109,7 +113,9 @@ class BaseTelegramChannel(abc.ABC):
             "duration": self._format_duration(duration),
             **{
                 key: value
-                for key, value in self.build_summary(details=task_run.details).items()
+                for key, value in self.build_summary(
+                    details=task_run.details
+                ).items()
                 if value is not None
             },
         }
@@ -126,12 +132,13 @@ class BaseTelegramChannel(abc.ABC):
         )
 
     async def send_failed_message(
-            self, *,
-            task_run: TaskRunSchema,
-            execution_status: IntEnum,
-            exception: str,
-            duration: float,
-            celery_details: dict[str, t.Any] | None = None
+        self,
+        *,
+        task_run: TaskRunSchema,
+        execution_status: IntEnum,
+        exception: str,
+        duration: float,
+        celery_details: dict[str, t.Any] | None = None,
     ) -> None:
         # ------------------------------------------------------------------------ #
         info_message: str = (
@@ -143,7 +150,7 @@ class BaseTelegramChannel(abc.ABC):
             "run id": task_run.id,
             "execution status": execution_status.name,
             "duration": self._format_duration(duration),
-            "exception": exception[-self.MAX_EXCEPTION_CHARS:].strip(),
+            "exception": exception[-self.MAX_EXCEPTION_CHARS :].strip(),
         }
         # ------------------------------------------------------------------------ #
 
@@ -156,6 +163,7 @@ class BaseTelegramChannel(abc.ABC):
                 celery_details=celery_details,
             ),
         )
+
     ################################################################################
 
     # [helpers]
@@ -175,5 +183,10 @@ class BaseTelegramChannel(abc.ABC):
     def _format_duration(seconds: float) -> str:
         minutes, secs = divmod(round(seconds), 60)
         hours, minutes = divmod(minutes, 60)
-        return f"{hours}h {minutes:02d}m {secs:02d}s" if hours else f"{minutes}m {secs:02d}s"
+        return (
+            f"{hours}h {minutes:02d}m {secs:02d}s"
+            if hours
+            else f"{minutes}m {secs:02d}s"
+        )
+
     ################################################################################

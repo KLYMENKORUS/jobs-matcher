@@ -11,6 +11,7 @@ class InteractionStatus(StrEnum):
     PENDING = scored by the AI; it is sent once score >= the user's current
     min_score, so lowering min_score needs no new analysis.
     """
+
     NEW = "new"
     REJECTED = "rejected"
     PENDING = "pending"

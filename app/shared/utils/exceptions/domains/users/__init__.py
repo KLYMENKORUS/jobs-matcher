@@ -10,7 +10,6 @@ from ..._base import BaseErrorException
 
 
 class UnsupportedCVFormatError(BaseErrorException):
-
     def __init__(self, *, filename: str, supported: tuple[str, ...]) -> None:
         # ------------------------------------------------------------------------ #
         self.filename: str = filename
@@ -30,7 +29,6 @@ class UnsupportedCVFormatError(BaseErrorException):
 
 
 class CVParsingError(BaseErrorException):
-
     def __init__(self, *, path: Path, reason: str) -> None:
         # ------------------------------------------------------------------------ #
         self.path: Path = path
@@ -47,11 +45,8 @@ class CVParsingError(BaseErrorException):
 
 
 class UserNotFoundError(BaseErrorException):
-
     def __init__(
-            self, *,
-            telegram_id: int | None = None,
-            user_id: int | None = None
+        self, *, telegram_id: int | None = None, user_id: int | None = None
     ) -> None:
         # ------------------------------------------------------------------------ #
         self.telegram_id: int | None = telegram_id
@@ -62,8 +57,7 @@ class UserNotFoundError(BaseErrorException):
 
     def __str__(self) -> str:
         return (
-            f"user not found: telegram_id={self.telegram_id}, "
-            f"user_id={self.user_id}"
+            f"user not found: telegram_id={self.telegram_id}, user_id={self.user_id}"
         )
 
     def __repr__(self) -> str:

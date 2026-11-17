@@ -11,7 +11,6 @@ from app.shared.utils.logger.enums import LogLabels
 
 
 class BaseScraperRequestClient:
-
     def __init__(self, *, logger: Logger) -> None:
         # ------------------------------------------------------------------------ #
         self.logger: Logger = logger
@@ -27,7 +26,7 @@ class BaseScraperRequestClient:
             "user-agent": ua_generator.generate(
                 device="desktop",
                 platform=["windows", "macos"],
-                browser="chrome"
+                browser="chrome",
             ).text.strip()
         }
 
@@ -35,11 +34,13 @@ class BaseScraperRequestClient:
     def get_dom_from_html(*, html: str) -> HtmlElement:
         return fromstring(html=html, parser=HTMLParser())
 
-    def update_headers(self, *, headers: dict[str, t.Any] | None) -> dict[str, t.Any]:
+    def update_headers(
+        self, *, headers: dict[str, t.Any] | None
+    ) -> dict[str, t.Any]:
         return {**(headers or {}), **self.get_random_user_agent()}
 
     def prepare_request_params(
-            self, *, params: BaseModel, exclude_timeout: bool = False
+        self, *, params: BaseModel, exclude_timeout: bool = False
     ) -> dict[str, t.Any]:
         request_params: dict[str, t.Any] = {
             key: value
@@ -50,7 +51,7 @@ class BaseScraperRequestClient:
                     "timeout" if exclude_timeout else "",
                 },
                 exclude_none=True,
-                by_alias=True
+                by_alias=True,
             ).items()
             if value
         }

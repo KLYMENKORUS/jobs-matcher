@@ -12,11 +12,8 @@ from ..http import BaseScraperRequestClient
 
 
 class AsyncBaseCurlScraperClient(BaseScraperRequestClient, abc.ABC):
-
     def __init__(
-            self, *,
-            logger: Logger,
-            proxies: dict[str, t.Any] | None = None
+        self, *, logger: Logger, proxies: dict[str, t.Any] | None = None
     ) -> None:
         super().__init__(logger=logger)
 
@@ -40,9 +37,9 @@ class AsyncBaseCurlScraperClient(BaseScraperRequestClient, abc.ABC):
 
     @abc.abstractmethod
     async def __aexit__(
-            self,
-            exc_type: type[BaseException] | None,
-            exc_val: BaseException | None,
-            exc_tb: types.TracebackType | None
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: types.TracebackType | None,
     ) -> None:
         pass

@@ -4,7 +4,6 @@ import typing as t
 
 
 class HtmlFormatter:
-
     @staticmethod
     def _put_in_tag(*, tag: str, text: str) -> str:
         return f"<{tag}>{text}</{tag}>"

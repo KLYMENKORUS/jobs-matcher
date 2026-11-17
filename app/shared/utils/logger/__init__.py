@@ -1,9 +1,4 @@
-__all__ = (
-    "logger",
-    "Logger",
-    "LogLabels",
-    "LogLevel"
-)
+__all__ = ("logger", "Logger", "LogLabels", "LogLevel")
 
 import os
 import sys
@@ -21,13 +16,12 @@ from app.shared.utils.logger.formatter import ColoredFormatter
 
 
 class Logger:
-
     def __init__(
-            self,
-            *,
-            name: str,
-            disable_file_handler: bool = False,
-            disable_stream_handler: bool = True
+        self,
+        *,
+        name: str,
+        disable_file_handler: bool = False,
+        disable_stream_handler: bool = True,
     ) -> None:
         # ------------------------------------------------------------------------ #
         self._name: str = name
@@ -46,9 +40,9 @@ class Logger:
 
         # [logger]
         # ------------------------------------------------------------------------ #
-        self._logger = loguru_logger \
-            .bind(logger_id=self._logger_id) \
-            .patch(self._patch_record)
+        self._logger = loguru_logger.bind(logger_id=self._logger_id).patch(
+            self._patch_record
+        )
         # ------------------------------------------------------------------------ #
 
         # [file handler]
@@ -81,7 +75,9 @@ class Logger:
 
     @staticmethod
     def _generate_logs_path(*, filename: str = "logger") -> str:
-        log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "log_files")
+        log_dir = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "log_files"
+        )
         os.makedirs(log_dir, exist_ok=True)
         return os.path.join(log_dir, f"{filename}.log")
 
@@ -95,19 +91,25 @@ class Logger:
         extra["levelname"] = record["level"].name[:10].ljust(10)
         extra["mode"] = settings.MODE
 
-        path: list[str] = \
+        path: list[str] = (
             record["file"].path.split("app")[-1].strip(os.sep).split(os.sep)[-2:]
-        extra["pathname"] = \
+        )
+        extra["pathname"] = (
             os.sep.join(path) if path[-1] == "__init__.py" else path[-1]
+        )
         extra["lineno"] = f"(l-{record['line']})"
 
-    def _log(self, level: LogLevel, msg: str | None, *args: t.Any, **kwargs: t.Any) -> None:
+    def _log(
+        self, level: LogLevel, msg: str | None, *args: t.Any, **kwargs: t.Any
+    ) -> None:
         self._logger.opt(depth=2).log(level.name, msg or "", *args, **kwargs)
 
     def debug(self, msg: str | None = None, *args: t.Any, **kwargs: t.Any) -> None:
         self._log(LogLevel.DEBUG, msg, *args, **kwargs)
 
-    def subdelimit(self, msg: str | None = None, *args: t.Any, **kwargs: t.Any) -> None:
+    def subdelimit(
+        self, msg: str | None = None, *args: t.Any, **kwargs: t.Any
+    ) -> None:
         self._log(LogLevel.SUBDELIMIT, msg, *args, **kwargs)
 
     def delimit(self, msg: str | None = None, *args: t.Any, **kwargs: t.Any) -> None:

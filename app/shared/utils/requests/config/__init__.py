@@ -19,7 +19,7 @@ class HTTPRetryConfig:
         HTTPStatus.BAD_GATEWAY,
         HTTPStatus.SERVICE_UNAVAILABLE,
         HTTPStatus.GATEWAY_TIMEOUT,
-        HTTPStatus.PROXY_AUTHENTICATION_REQUIRED
+        HTTPStatus.PROXY_AUTHENTICATION_REQUIRED,
     }
 
     def __init__(self, *, exp_statuses: set[HTTPStatus] | None = None) -> None:

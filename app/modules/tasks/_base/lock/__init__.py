@@ -24,7 +24,9 @@ class TaskAdvisoryLock:
                 return  # another worker is running this task
     """
 
-    def __init__(self, *, task_type: TaskType, engine: AsyncEngine | None = None) -> None:
+    def __init__(
+        self, *, task_type: TaskType, engine: AsyncEngine | None = None
+    ) -> None:
         # ------------------------------------------------------------------------ #
         self._engine: AsyncEngine = engine or db_client.engine
         # ------------------------------------------------------------------------ #
@@ -38,7 +40,9 @@ class TaskAdvisoryLock:
     async def __aenter__(self) -> bool:
         self._connection = await self._engine.connect()
         self._acquired = bool(
-            await self._connection.scalar(select(func.pg_try_advisory_lock(self._key)))
+            await self._connection.scalar(
+                select(func.pg_try_advisory_lock(self._key))
+            )
         )
         # end the implicit transaction, the session-level lock stays held
         await self._connection.commit()
@@ -49,17 +53,19 @@ class TaskAdvisoryLock:
         return self._acquired
 
     async def __aexit__(
-            self,
-            exc_type: type[BaseException] | None,
-            exc_value: BaseException | None,
-            traceback: types.TracebackType | None
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: types.TracebackType | None,
     ) -> None:
         if self._connection is None:
             return
 
         try:
             if self._acquired:
-                await self._connection.scalar(select(func.pg_advisory_unlock(self._key)))
+                await self._connection.scalar(
+                    select(func.pg_advisory_unlock(self._key))
+                )
                 await self._connection.commit()
         finally:
             await self._close()

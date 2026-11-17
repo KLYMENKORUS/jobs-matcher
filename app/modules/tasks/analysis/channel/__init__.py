@@ -13,8 +13,7 @@ class AnalysisTelegramChannel(BaseTelegramChannel):
 
     def __init__(self, *, logger: Logger) -> None:
         super().__init__(
-            logger=logger,
-            channel_id=settings.TELEGRAM_CHANNEL_ANALYSIS
+            logger=logger, channel_id=settings.TELEGRAM_CHANNEL_ANALYSIS
         )
 
     @property

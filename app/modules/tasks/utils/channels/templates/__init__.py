@@ -45,6 +45,7 @@ class TemplateRenderer:
                 return self.formatter.code_block(text=escape(str(value)))
 
             return self.formatter.code(text=escape(str(value)))
+
         # ------------------------------------------------------------------------ #
 
         return "\n".join(
@@ -68,12 +69,13 @@ class TemplateRenderer:
         )
 
     def render_message(
-            self, *,
-            info_message: str,
-            info_emoji: str | None = None,
-            details: dict[str, t.Any] | None = None,
-            warnings: list[str] | None = None,
-            celery_details: dict[str, t.Any] | None = None,
+        self,
+        *,
+        info_message: str,
+        info_emoji: str | None = None,
+        details: dict[str, t.Any] | None = None,
+        warnings: list[str] | None = None,
+        celery_details: dict[str, t.Any] | None = None,
     ) -> str:
         # ------------------------------------------------------------------------ #
         message: str = (
@@ -90,7 +92,9 @@ class TemplateRenderer:
             message += f"\n\n{self.render_details(details=details)}"
 
         if celery_details:
-            message += f"\n\n{self.render_celery_details(celery_details=celery_details)}"
+            message += (
+                f"\n\n{self.render_celery_details(celery_details=celery_details)}"
+            )
         # ------------------------------------------------------------------------ #
 
         return message

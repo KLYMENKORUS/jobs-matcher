@@ -1,12 +1,9 @@
-__all__ = (
-    "AIRunFailedException",
-)
+__all__ = ("AIRunFailedException",)
 
 from .._base import BaseErrorException
 
 
 class AIRunFailedException(BaseErrorException):
-
     def __init__(self, *, client_type: str, reason: str) -> None:
         # ------------------------------------------------------------------------ #
         self.client_type: str = client_type
@@ -19,6 +16,4 @@ class AIRunFailedException(BaseErrorException):
         return f"AI run failed for client '{self.client_type}': {self.reason}"
 
     def __repr__(self) -> str:
-        return (
-            f"{type(self).__name__}({self.client_type!r}, {self.reason!r})"
-        )
+        return f"{type(self).__name__}({self.client_type!r}, {self.reason!r})"

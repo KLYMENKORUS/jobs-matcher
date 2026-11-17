@@ -16,6 +16,7 @@ class TextCleaner:
     - both: bullets, repeated spaces / lines and empty lines are dropped, the
       text is cut on a line boundary.
     """
+
     _FLAGS: t.Final[re.RegexFlag] = re.IGNORECASE | re.VERBOSE
 
     # "Email:", "Tel.", ... in front of a contact go together with it
@@ -28,7 +29,8 @@ class TextCleaner:
         )?
     """
     _EMAIL: t.Final[re.Pattern[str]] = re.compile(
-        pattern=_LABEL + r"""
+        pattern=_LABEL
+        + r"""
             [\w.+-]+            # local part
             @
             [\w-]+              # domain
@@ -37,7 +39,8 @@ class TextCleaner:
         flags=_FLAGS,
     )
     _URL: t.Final[re.Pattern[str]] = re.compile(
-        pattern=_LABEL + r"""
+        pattern=_LABEL
+        + r"""
             (?:
                 https?://
               | www\.
@@ -48,7 +51,8 @@ class TextCleaner:
         flags=_FLAGS,
     )
     _PHONE: t.Final[re.Pattern[str]] = re.compile(
-        pattern=_LABEL + r"""
+        pattern=_LABEL
+        + r"""
             \+? \(?
             \d
             [\d \t()-]{8,}      # no dots: 01.2019 - 05.2021 is never a phone;
@@ -71,7 +75,9 @@ class TextCleaner:
     )
     _HTML_TAG: t.Final[re.Pattern[str]] = re.compile(r" < [^>]+ > ", _FLAGS)
     # leading list markers: spaces, bullets, stars and dashes
-    _BULLET: t.Final[re.Pattern[str]] = re.compile(r" ^ [\s•●▪◦·○■□►✓✔*–—-]+ ", _FLAGS)
+    _BULLET: t.Final[re.Pattern[str]] = re.compile(
+        r" ^ [\s•●▪◦·○■□►✓✔*–—-]+ ", _FLAGS
+    )
     # spaces, tabs and non-breaking spaces
     _SPACES: t.Final[re.Pattern[str]] = re.compile(r" [ \t ]+ ", _FLAGS)
 

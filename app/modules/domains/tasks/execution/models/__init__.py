@@ -18,6 +18,7 @@ class TaskRun(Base):
     `execution_status` is the state the run is on; a run is unfinished until
     `completed_at` is set, and the next start of the same task type picks it up.
     """
+
     __tablename__ = "task_runs"
     __table_args__ = (
         Index("ix_task_runs_task_type_completed_at", "task_type", "completed_at"),

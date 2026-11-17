@@ -15,6 +15,8 @@ from app.shared.utils.enums.domains.interactions import InteractionStatus
 class VacancyMatchSchema(BaseModel):
     match_score: float = Field(ge=0, le=100)
     match_reasoning: str
+
+
 ################################################################################
 
 
@@ -33,4 +35,6 @@ class InteractionSchema(BaseModel):
 
 class InteractionWithVacancySchema(InteractionSchema):
     vacancy: VacancySchema
+
+
 ################################################################################

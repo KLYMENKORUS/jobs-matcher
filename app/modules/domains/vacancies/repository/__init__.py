@@ -1,6 +1,4 @@
-__all__ = (
-    "VacancyRepository",
-)
+__all__ = ("VacancyRepository",)
 
 import typing as t
 from collections.abc import Sequence
@@ -30,9 +28,7 @@ class VacancyRepository(BaseCRUD[Vacancy]):
         return set((await self.session.scalars(query)).all())
 
     async def create_many_skip_existing(
-            self,
-            *,
-            items: Sequence[dict[str, t.Any]]
+        self, *, items: Sequence[dict[str, t.Any]]
     ) -> Sequence[Vacancy]:
         """INSERT ... ON CONFLICT (url) DO NOTHING"""
         if not items:
@@ -47,7 +43,7 @@ class VacancyRepository(BaseCRUD[Vacancy]):
         return (await self.session.scalars(query)).all()
 
     async def get_collected_until_map(
-            self, *, sources: Sequence[str], keywords: Sequence[str]
+        self, *, sources: Sequence[str], keywords: Sequence[str]
     ) -> dict[tuple[str, str], datetime]:
         """
         (source, keyword) -> `posted_at` of the newest vacancy already collected
@@ -57,7 +53,11 @@ class VacancyRepository(BaseCRUD[Vacancy]):
             return {}
 
         query = (
-            select(Vacancy.source, VacancyKeyword.keyword, func.max(Vacancy.posted_at))
+            select(
+                Vacancy.source,
+                VacancyKeyword.keyword,
+                func.max(Vacancy.posted_at),
+            )
             .join(VacancyKeyword, VacancyKeyword.vacancy_id == Vacancy.id)
             .where(
                 Vacancy.source.in_(sources),
@@ -68,7 +68,9 @@ class VacancyRepository(BaseCRUD[Vacancy]):
         )
         rows = (await self.session.execute(query)).all()
         return {
-            (source, keyword): until for source, keyword, until in rows if until is not None
+            (source, keyword): until
+            for source, keyword, until in rows
+            if until is not None
         }
 
     async def get_ids_by_urls(self, *, urls: Sequence[str]) -> dict[str, int]:
@@ -78,27 +80,34 @@ class VacancyRepository(BaseCRUD[Vacancy]):
         query = select(Vacancy.url, Vacancy.id).where(Vacancy.url.in_(urls))
         return {url: id for url, id in (await self.session.execute(query)).all()}
 
-    async def link_keyword(self, *, vacancy_ids: Sequence[int], keyword: str) -> None:
+    async def link_keyword(
+        self, *, vacancy_ids: Sequence[int], keyword: str
+    ) -> None:
         """INSERT ... ON CONFLICT (vacancy_id, keyword) DO NOTHING"""
         if not vacancy_ids:
             return
 
         query = (
             insert(VacancyKeyword)
-            .values([{"vacancy_id": vacancy_id, "keyword": keyword} for vacancy_id in vacancy_ids])
+            .values(
+                [
+                    {"vacancy_id": vacancy_id, "keyword": keyword}
+                    for vacancy_id in vacancy_ids
+                ]
+            )
             .on_conflict_do_nothing(constraint="uq_vacancy_keyword")
         )
         await self.session.execute(query)
 
     async def get_unprocessed_for_user(
-            self,
-            *,
-            user_id: int,
-            keywords: Sequence[str] | None = None,
-            created_since: datetime | None = None,
-            exclude_ids: Sequence[int] | None = None,
-            status: VacancyStatus | None = None,
-            limit: int | None = 50
+        self,
+        *,
+        user_id: int,
+        keywords: Sequence[str] | None = None,
+        created_since: datetime | None = None,
+        exclude_ids: Sequence[int] | None = None,
+        status: VacancyStatus | None = None,
+        limit: int | None = 50,
     ) -> Sequence[Vacancy]:
         """
         Vacancies the user has no interaction with yet.
@@ -132,11 +141,11 @@ class VacancyRepository(BaseCRUD[Vacancy]):
         return (await self.session.scalars(query)).all()
 
     async def get_by_status(
-            self,
-            *,
-            status: VacancyStatus,
-            sources: Sequence[str] | None = None,
-            limit: int | None = 50
+        self,
+        *,
+        status: VacancyStatus,
+        sources: Sequence[str] | None = None,
+        limit: int | None = 50,
     ) -> Sequence[Vacancy]:
         query = select(Vacancy).where(Vacancy.status == status)
         if sources is not None:
